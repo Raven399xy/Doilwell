@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en" x-data="coursesApp()" x-init="init()" :class="{ 'dark': darkMode }">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doilwell Institute — Center For Applied Engineering and Technology — Training Courses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="doilwell-courses.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { display: ['Barlow Condensed', 'sans-serif'], body: ['Crimson Pro', 'Georgia', 'serif'] } } }
+    }
+  </script>
+  <style>
+    :root {
+      --amber: #f59e0b; --amber-dark: #d97706; --rust: #c2410c;
+      --light-bg: #f5f0e8; --light-surface: #faf7f2; --light-text: #1a1710; --light-muted: #6b6047;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--light-bg); color: var(--light-text); font-family: 'Crimson Pro', Georgia, serif; overflow-x: hidden; transition: background 0.4s ease, color 0.4s ease; }
+    .dark body { background: #0a0a08; color: #e8e4d8; }
+
+    /* ── NAV ── */
+    .nav-glass { background: rgba(245,240,232,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(245,158,11,0.2); transition: background 0.4s; }
+    .dark .nav-glass { background: rgba(10,10,8,0.92); border-bottom-color: rgba(245,158,11,0.15); }
+    .nav-link { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 0.12em; font-size: 0.8rem; text-transform: uppercase; color: #8a7a5a; transition: color 0.3s; position: relative; }
+    .dark .nav-link { color: #a8a090; }
+    .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px; background: var(--amber); transform: scaleX(0); transition: transform 0.3s; }
+    .nav-link:hover, .nav-link.active { color: var(--amber); }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+
+    /* Theme toggle */
+    .theme-toggle { width: 44px; height: 24px; background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.35); border-radius: 12px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+    .theme-toggle-knob { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--amber); border-radius: 50%; transition: transform 0.3s; display: flex; align-items: center; justify-content: center; }
+    .dark .theme-toggle-knob { transform: translateX(20px); }
+
+    /* ── HERO ── */
+    .hero { position: relative; min-height: 60vh; display: flex; align-items: flex-end; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; background-image: url('courses.jpeg'); background-size: cover; background-position: center 45%; animation: heroZoom 20s ease-in-out infinite alternate; }
+    @keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,8,0.97) 0%, rgba(10,10,8,0.52) 55%, rgba(10,10,8,0.35) 100%); }
+
+    /* ── BUTTONS ── */
+    .btn-primary { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.2em; font-size: 0.85rem; text-transform: uppercase; background: var(--amber); color: #0a0a08; padding: 14px 36px; border: none; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; position: relative; overflow: hidden; }
+    .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { background: var(--amber-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,158,11,0.3); }
+    .btn-outline { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.2em; font-size: 0.85rem; text-transform: uppercase; background: transparent; padding: 13px 36px; border: 1px solid rgba(26,23,16,0.3); cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; color: var(--light-text); }
+    .dark .btn-outline { color: #e8e4d8; border-color: rgba(232,228,216,0.3); }
+    .btn-outline:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ── SECTION LABELS ── */
+    .section-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.35em; font-size: 0.72rem; color: var(--amber); text-transform: uppercase; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 5vw, 4rem); text-transform: uppercase; line-height: 0.95; color: var(--light-text); }
+    .dark .section-title { color: #f0ece0; }
+    .section-title span { color: var(--amber); }
+    .gold-divider { width: 60px; height: 2px; background: linear-gradient(90deg, var(--amber), transparent); }
+
+    /* ── BADGE ── */
+    .badge { display: inline-block; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 14px; margin: 4px; }
+
+    /* ── SCHEDULE TABLE ── */
+    .schedule-wrap { background: var(--light-surface); border: 1px solid rgba(245,158,11,0.12); overflow: hidden; transition: background 0.4s; }
+    .dark .schedule-wrap { background: #111109; border-color: rgba(245,158,11,0.1); }
+    .schedule-table { width: 100%; border-collapse: collapse; }
+    .schedule-table th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.15em; font-size: 0.75rem; text-transform: uppercase; background: #ede8db; color: var(--amber); padding: 16px 20px; border-bottom: 1px solid rgba(245,158,11,0.2); text-align: left; }
+    .dark .schedule-table th { background: #1a1508; }
+    .schedule-table td { font-family: 'Crimson Pro', serif; font-size: 1rem; padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #4a4030; transition: background 0.2s; }
+    .dark .schedule-table td { border-bottom-color: rgba(255,255,255,0.04); color: #c8c0a8; }
+    .schedule-table tbody tr:hover td { background: rgba(245,158,11,0.05); }
+    .schedule-table tbody tr:last-child td { border-bottom: none; }
+    .schedule-table td.date-cell { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; color: var(--light-text); white-space: nowrap; }
+    .dark .schedule-table td.date-cell { color: #f0ece0; }
+    .schedule-table td.price-cell { color: var(--amber); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; }
+
+    /* ── ARTICLE BLOCKS ── */
+    .article-block { background: var(--light-surface); border: 1px solid rgba(245,158,11,0.1); overflow: hidden; transition: background 0.4s, border-color 0.3s; }
+    .dark .article-block { background: #111109; border-color: rgba(245,158,11,0.08); }
+    .article-header { padding: 36px 40px 28px; border-bottom: 1px solid rgba(245,158,11,0.1); }
+    .article-body { padding: 40px; }
+    .article-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(1.6rem, 3vw, 2.4rem); text-transform: uppercase; line-height: 1; color: var(--light-text); margin-bottom: 10px; }
+    .dark .article-title { color: #f0ece0; }
+    .article-subtitle { font-family: 'Crimson Pro', serif; font-style: italic; color: #8a7a5a; font-size: 1.1rem; }
+    .dark .article-subtitle { color: #888070; }
+    .art-section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--amber); margin: 32px 0 14px; display: flex; align-items: center; gap: 10px; }
+    .art-section-title::before { content: ''; display: block; width: 20px; height: 2px; background: var(--amber); flex-shrink: 0; }
+    .art-sub-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.06em; color: #c4920a; margin: 20px 0 8px; }
+    .dark .art-sub-title { color: #d4a820; }
+    .content-text { font-family: 'Crimson Pro', serif; color: #4a4030; line-height: 1.85; font-size: 1.05rem; margin-bottom: 12px; }
+    .dark .content-text { color: #c0b898; }
+    .content-text strong { color: var(--light-text); }
+    .dark .content-text strong { color: #e8e4d8; }
+    .check-list { list-style: none; padding-left: 0; }
+    .check-list li { padding: 7px 0 7px 28px; color: #5a5040; font-family: 'Crimson Pro', serif; font-size: 1.02rem; position: relative; }
+    .dark .check-list li { color: #b8b098; }
+    .check-list li::before { content: '→'; position: absolute; left: 0; color: var(--amber); font-weight: bold; }
+    .module-box { background: rgba(245,158,11,0.04); border-left: 3px solid var(--amber); padding: 20px 24px; margin: 16px 0; border-radius: 0 4px 4px 0; }
+    .module-box-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--light-text); margin-bottom: 12px; }
+    .dark .module-box-title { color: #f0ece0; }
+    .day-box { background: rgba(194,65,12,0.04); border-left: 3px solid var(--rust); padding: 20px 24px; margin: 16px 0; }
+    .dark .day-box { background: rgba(194,65,12,0.06); }
+    .day-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; color: #b05a30; margin-bottom: 10px; }
+    .dark .day-title { color: #e0704a; }
+    .highlight-box { background: rgba(245,158,11,0.04); border: 1px solid rgba(245,158,11,0.15); padding: 24px; margin: 16px 0; }
+
+    /* ── ACCORDION ── */
+    .accordion-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .accordion-icon { transition: transform 0.3s; flex-shrink: 0; }
+    .accordion-icon.open { transform: rotate(180deg); }
+
+    /* ── COURSE ACCORDION ── */
+    .course-accordion-item {
+      border: 1px solid rgba(245,158,11,0.15);
+      background: var(--light-surface);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
+    .dark .course-accordion-item {
+      background: #111109;
+      border-color: rgba(245,158,11,0.1);
+    }
+    .course-accordion-item:hover {
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 4px 20px rgba(245,158,11,0.08);
+    }
+    .course-accordion-trigger {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 20px 28px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      text-align: left;
+      transition: background 0.2s;
+    }
+    .course-accordion-trigger:hover {
+      background: rgba(245,158,11,0.04);
+    }
+    .course-medal {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .course-accordion-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--light-text);
+      flex: 1;
+      line-height: 1.2;
+    }
+    .dark .course-accordion-name { color: #f0ece0; }
+    .course-price-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--amber);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .course-chevron {
+      color: var(--amber);
+      flex-shrink: 0;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    .course-accordion-body {
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
+    }
+    .course-accordion-inner {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    @media (min-width: 768px) {
+      .course-accordion-inner {
+        grid-template-columns: 280px 1fr;
+      }
+    }
+    .course-img-wrap {
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+    }
+    @media (min-width: 768px) {
+      .course-img-wrap { min-height: 260px; }
+    }
+    .course-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      transition: transform 0.5s ease;
+    }
+    .course-img-wrap:hover img { transform: scale(1.05); }
+    .course-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(10,10,8,0.4) 0%, transparent 60%);
+      z-index: 1;
+    }
+    .course-content-wrap {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 1px solid rgba(245,158,11,0.1);
+    }
+    @media (min-width: 768px) {
+      .course-content-wrap {
+        border-top: none;
+        border-left: 1px solid rgba(245,158,11,0.1);
+      }
+    }
+    .dark .course-content-wrap { border-color: rgba(245,158,11,0.08); }
+    .course-description {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #5a5040;
+    }
+    .dark .course-description { color: #b8b098; }
+    .course-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .course-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.22);
+      color: var(--amber);
+      padding: 5px 12px;
+    }
+    .course-view-link {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, gap 0.3s;
+      margin-top: 4px;
+      align-self: flex-start;
+    }
+    .course-view-link:hover {
+      border-bottom-color: var(--amber);
+      gap: 12px;
+    }
+    .course-price-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      padding: 7px 16px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--amber);
+      letter-spacing: 0.05em;
+      align-self: flex-start;
+    }
+    .course-price-pill span {
+      font-weight: 400;
+      font-size: 0.75rem;
+      opacity: 0.7;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Category headers */
+    .cat-header {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--amber);
+      padding: 14px 28px;
+      background: rgba(245,158,11,0.06);
+      border-left: 3px solid var(--amber);
+      border-bottom: 1px solid rgba(245,158,11,0.15);
+    }
+    .dark .cat-header {
+      background: rgba(245,158,11,0.04);
+    }
+
+    /* ── FORM FIELDS ── */
+    .form-field { width: 100%; background: var(--light-surface); border: 1px solid rgba(245,158,11,0.15); color: var(--light-text); font-family: 'Crimson Pro', serif; font-size: 1rem; padding: 12px 16px; outline: none; transition: border-color 0.3s; }
+    .dark .form-field { background: #111109; border-color: rgba(245,158,11,0.12); color: #e8e4d8; }
+    .form-field:focus { border-color: rgba(245,158,11,0.45); }
+    .form-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.15em; font-size: 0.7rem; text-transform: uppercase; color: #8a7a5a; display: block; margin-bottom: 6px; }
+    .dark .form-label { color: #888070; }
+
+    /* ── SECTION BACKGROUNDS ── */
+    .sect-light { background: var(--light-bg); }
+    .dark .sect-light { background: #0a0a08; }
+    .sect-surface { background: var(--light-surface); }
+    .dark .sect-surface { background: #0e0e0b; }
+    .sect-warm { background: linear-gradient(180deg, #eee8de 0%, var(--light-surface) 100%); }
+    .dark .sect-warm { background: linear-gradient(180deg, #0a0a08 0%, #111109 100%); }
+    .sect-alt { background: linear-gradient(135deg, #ede8da 0%, #f5efe0 100%); }
+    .dark .sect-alt { background: #111109; }
+
+    /* ── TEXT COLORS ── */
+    .text-body-muted { color: #5a5040; }
+    .dark .text-body-muted { color: #a8a090; }
+    .text-body-main { color: #2e2818; }
+    .dark .text-body-main { color: #e8e4d8; }
+    .text-subtext { color: #7a6e56; }
+    .dark .text-subtext { color: #888070; }
+    .border-subtle { border-color: rgba(0,0,0,0.08); }
+    .dark .border-subtle { border-color: rgba(255,255,255,0.06); }
+
+    /* ── FLOATING BTNS ── */
+    .float-wa { position: fixed; bottom: 36px; right: 36px; width: 56px; height: 56px; background: #25d366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 999; box-shadow: 0 4px 24px rgba(37,211,102,0.35); transition: transform 0.3s; text-decoration: none; }
+    .float-wa:hover { transform: scale(1.12); }
+    .float-phone, .float-email { position: fixed; left: 24px; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 999; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.25); transition: transform 0.3s; }
+    .float-phone { bottom: 100px; background: #c2410c; }
+    .float-email { bottom: 44px; background: #1d4ed8; }
+    .float-phone:hover, .float-email:hover { transform: scale(1.12); }
+    .mobile-menu { background: rgba(245,240,232,0.98); backdrop-filter: blur(20px); }
+    .dark .mobile-menu { background: rgba(10,10,8,0.98); }
+    .footer-surface { background: #f0ebe0; border-top: 1px solid rgba(245,158,11,0.18); }
+    .dark .footer-surface { background: #060604; border-top-color: rgba(245,158,11,0.15); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .revealed { opacity: 1 !important; transform: translateY(0) !important; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-fade-up { opacity: 0; animation: fadeUp 0.9s ease forwards; animation-fill-mode: both; }
+    @keyframes scrollBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+    .scroll-cue { animation: scrollBounce 2s ease-in-out infinite; }
+    .diagonal-clip { clip-path: polygon(0 0, 100% 4%, 100% 100%, 0 96%); }
+
+    /* Course group spacing */
+    .course-group { margin-bottom: 48px; }
+    .course-group-list { display: flex; flex-direction: column; gap: 0; border: 1px solid rgba(245,158,11,0.15); }
+    .dark .course-group-list { border-color: rgba(245,158,11,0.1); }
+    .course-group-list .course-accordion-item { border: none; border-bottom: 1px solid rgba(245,158,11,0.1); }
+    .course-group-list .course-accordion-item:last-child { border-bottom: none; }
+
+    /* ── COMING SOON TAGS ── */
+    .coming-soon-tag {
+      color: #c2410c !important;
+      background: rgba(194,65,12,0.1);
+      border: 1px solid rgba(194,65,12,0.3);
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .coming-soon-pill {
+      background: rgba(194,65,12,0.08) !important;
+      border: 1px solid rgba(194,65,12,0.25) !important;
+      color: #c2410c !important;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .coming-soon-cell {
+      color: #c2410c !important;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+    [x-cloak]{display:none!important}
+    .course-row{display:flex;align-items:center;gap:8px;padding-right:20px}
+    .course-row .course-accordion-trigger{flex:1;min-width:0;text-decoration:none}
+    a.price-link{border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.1);padding:6px 14px;text-decoration:none;transition:all .3s}
+    a.price-link:hover{background:var(--amber);color:#0a0a08}
+    .btn-primary:disabled{opacity:.65;cursor:wait;transform:none}
+    .vid-panel{border-top:1px solid rgba(245,158,11,.12);padding:24px 28px}
+    .vid-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .vid-state{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;padding:5px 12px;color:#c2410c;border:1px solid rgba(194,65,12,.3);background:rgba(194,65,12,.08)}
+    .vid-state.on{color:#15803d;border-color:rgba(21,128,61,.35);background:rgba(21,128,61,.08)}
+    .dark .vid-state.on{color:#4ade80}
+    .vid-grid{display:grid;gap:16px}
+    @media(min-width:900px){.vid-grid{grid-template-columns:2fr 1fr}}
+    .vid-stage{aspect-ratio:16/9;background:#0a0a08;border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .vid-stage.locked{background:repeating-linear-gradient(45deg,#0a0a08,#0a0a08 12px,#11110b 12px,#11110b 24px)}
+    .vid-play{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+    .vid-stage video{width:100%;height:100%;object-fit:contain}
+    .vid-lock{text-align:center;color:#e8e4d8;padding:20px}
+    .vid-t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.2rem;text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
+    .vid-s{font-family:'Crimson Pro',serif;font-style:italic;color:#c8c0a8;margin-top:4px}
+    .vid-empty{padding:12px 16px;font-style:italic;color:#7a6e56}
+        .outline-wrap{border-top:1px solid rgba(245,158,11,.12);padding:24px 28px}
+    .outline-mod{border:1px solid rgba(245,158,11,.15);margin-bottom:8px;background:rgba(245,158,11,.02)}
+    .outline-mod summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.95rem;color:#2e2818}
+    .dark .outline-mod summary{color:#f0ece0}
+    .outline-mod summary::-webkit-details-marker{display:none}
+    .outline-mod summary::after{content:'+';color:var(--amber);font-size:1.3rem;line-height:1;flex-shrink:0}
+    .outline-mod[open] summary{color:var(--amber)}
+    .outline-mod[open] summary::after{content:'\2212'}
+    .outline-mod ol{padding:2px 16px 14px 42px;font-family:'Crimson Pro',serif;font-size:1.02rem;line-height:1.7;color:#5a5040}
+    .dark .outline-mod ol{color:#b8b098}
+    .vid-list{list-style:none;max-height:340px;overflow:auto;border:1px solid rgba(245,158,11,.15)}
+    .vid-item{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:12px 16px;background:none;border:none;border-bottom:1px solid rgba(245,158,11,.1);cursor:pointer;font-family:'Crimson Pro',serif;font-size:1rem;color:#4a4030;transition:background .2s}
+    .dark .vid-item{color:#c0b898}
+    .vid-item:disabled{cursor:not-allowed;opacity:.75}
+    .vid-item:not(:disabled):hover,.vid-item.active{background:rgba(245,158,11,.08);color:var(--amber)}
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script defer src="doilwell-auth.js"></script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="homepage.html" class="flex flex-col leading-none min-w-0 flex-shrink">
+        <span class="font-display font-900 text-base sm:text-xl text-amber-500 tracking-tight uppercase leading-none">Doilwell Institute</span>
+        <span class="font-display font-400 text-[0.6rem] sm:text-xs text-subtext uppercase leading-tight" style="letter-spacing:0.15em">Center For Applied Engineering and Technology</span>
+      </a>
+      <ul class="hidden lg:flex items-center gap-6">
+        <li><a href="homepage.html" class="nav-link">Home</a></li>
+        <li><a href="cert.html" class="nav-link">Certificates</a></li>
+        <li><a href="courses.html" class="nav-link active">Courses</a></li>
+        <li><a href="homepage.html#about" class="nav-link">About Us</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
+        <li>
+          <button @click="toggleDark()" class="theme-toggle" :aria-label="darkMode ? 'Light mode' : 'Dark mode'">
+            <div class="theme-toggle-knob">
+              <svg x-show="!darkMode" class="w-3 h-3 text-amber-900" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+              <svg x-show="darkMode" class="w-3 h-3 text-amber-100" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+            </div>
+          </button>
+        </li>
+        <li><a href="contact.html" class="btn-primary text-sm py-2 px-5">Enrol Now</a></li>
+      </ul>
+      <div class="lg:hidden flex items-center gap-3">
+        <button @click="toggleDark()" class="theme-toggle">
+          <div class="theme-toggle-knob">
+            <svg x-show="!darkMode" class="w-3 h-3 text-amber-900" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+            <svg x-show="darkMode" class="w-3 h-3 text-amber-100" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+          </div>
+        </button>
+        <button @click="menuOpen = !menuOpen" class="text-amber-500 focus:outline-none">
+          <svg x-show="!menuOpen" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg x-show="menuOpen" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div x-show="menuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="mobile-menu lg:hidden mt-4 py-6 px-6 border-t border-subtle">
+      <ul class="flex flex-col gap-5">
+        <li><a href="homepage.html" class="nav-link text-base" @click="menuOpen=false">Home</a></li>
+        <li><a href="cert.html" class="nav-link text-base" @click="menuOpen=false">Certificates</a></li>
+        <li><a href="courses.html" class="nav-link active text-base" @click="menuOpen=false">Courses</a></li>
+        <li><a href="homepage.html#about" class="nav-link text-base" @click="menuOpen=false">About Us</a></li>
+        <li><a href="contact.html" class="nav-link text-base" @click="menuOpen=false">Contact</a></li>
+        <li class="pt-2"><a href="contact.html" class="btn-primary block text-center" @click="menuOpen=false">Enrol Now</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60 scroll-cue" style="z-index:2">
+      <span class="font-display text-xs tracking-widest text-stone-400 uppercase">Scroll</span>
+      <div class="w-px h-10 bg-gradient-to-b from-amber-400 to-transparent"></div>
+    </div>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 pb-24 pt-40 w-full">
+      <div class="anim-fade-up" style="animation-delay:0.1s;display:flex;align-items:center;gap:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.35em;font-size:0.75rem;color:var(--amber);text-transform:uppercase;margin-bottom:20px">
+        <span style="display:block;width:40px;height:1px;background:var(--amber)"></span>Technical Training Programs
+      </div>
+      <h1 class="anim-fade-up" style="animation-delay:0.25s;animation-fill-mode:both;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(3rem,7vw,6.5rem);line-height:0.9;text-transform:uppercase;color:#f0ece0">
+        Our <span style="color:var(--amber)">Courses</span><br />&amp; Training<br />Schedules
+      </h1>
+      <p class="anim-fade-up" style="animation-delay:0.4s;animation-fill-mode:both;font-family:'Crimson Pro',serif;font-style:italic;color:#c8c0a8;font-size:1.2rem;margin-top:16px;max-width:480px">Industry-focused training delivering real-world skills for the global energy sector.</p>
+    </div>
+  </header>
+
+  <!-- ALL COURSES ACCORDION -->
+  <section class="py-20 px-4 sm:px-6 sect-light" x-data="courseList()">
+    <div class="max-w-7xl mx-auto">
+      <div class="reveal mb-14">
+        <span class="section-eyebrow block mb-4">Doilwell Institute</span>
+        <h2 class="section-title">Course <span>Categories</span></h2>
+        <div class="gold-divider mt-6"></div>
+        <p class="font-body text-lg mt-6 text-body-muted max-w-2xl">Click any course below to explore the full description, pricing, and course videos, which unlock once payment is made. All programmes are available in-person and can be tailored for corporate cohorts.</p>
+      </div>
+
+      <div class="course-group reveal">
+        <div class="cat-header">1 — Coiled Tubing &amp; Well Intervention</div>
+        <div class="course-group-list">
+          <div class="course-accordion-item" id="ct-workover">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('ct-workover')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Coiled Tubing and Hydraulic Workover Operations</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'ct-workover' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=ct-workover" class="course-price-tag price-link" aria-label="Pay $200 for Advanced Coiled Tubing and Hydraulic Workover Operations">$200</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'ct-workover'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1794167043/IMG-20261108-WA0013_epxvez.jpg" alt="Advanced Coiled Tubing and Hydraulic Workover Operations" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=ct-workover" class="course-price-pill" style="text-decoration:none">$200 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description">6 Advanced Professional Modules – Hands-On Practical, Engineering Design, Modelling and Industry-Focused Training</p>
+                  <div class="course-meta"><span class="course-tag">6 Modules</span></div>
+                  
+                  <a href="payment.html?course=ct-workover" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="outline-wrap"><h3 class="art-section-title" style="margin-top:0">Course Outline</h3><details class="outline-mod"><summary>Module 1: Advanced Coiled Tubing Operations, Well Intervention and Completion Applications</summary><ol><li>Coiled Tubing Intervention Strategies and Job Execution</li><li>Live-Well Intervention and Rigless Well Operations</li><li>Coiled Tubing Deployment in High-Pressure and High-Temperature Wells</li><li>CT Milling, Drilling and Fishing Operations</li><li>Coiled Tubing Cleanout and Sand/Scale Removal Operations</li><li>Nitrogen-Lift and Gas-Lift Applications</li><li>Coiled Tubing Stimulation and Matrix Acidizing Operations</li><li>Selective Zone Treatment and Multistage Intervention</li><li>Through-Tubing Perforating and Completion Intervention</li><li>Advanced CT Conveyance of Downhole Tools and BHA Systems</li><li>Extended-Reach and Horizontal Well Intervention</li><li>CT Operational Risk Assessment and Execution Planning</li></ol></details><details class="outline-mod"><summary>Module 2: Coiled Tubing Engineering, Job Design and Force Analysis</summary><ol><li>Coiled Tubing String Design and Material Selection</li><li>CT String Fatigue Modelling and Life-Cycle Assessment</li><li>CT Stress Analysis and Combined Loading Evaluation</li><li>Buckling Analysis: Sinusoidal and Helical Buckling</li><li>CT Lock-Up and Reach-Limit Analysis</li><li>Drag, Friction and Force Prediction Modelling</li><li>CT Injector Force and Weight Transfer Analysis</li><li>CT Pipe Movement and Downhole Force Modelling</li><li>CT Hydraulic and Circulation System Design</li><li>CT BHA Selection and Mechanical Design</li><li>Well Trajectory and Completion Geometry Assessment</li><li>Advanced CT Job Simulation and Engineering Design Validation</li></ol></details><details class="outline-mod"><summary>Module 3: Coiled Tubing Modelling, Software Simulation and Specialized Operations</summary><ol><li>Coiled Tubing Job Modelling and Simulation</li><li>CT String Fatigue and Running-Life Prediction Software</li><li>CT Force, Stress and Buckling Simulation</li><li>CT Reach, Lock-Up and Depth Prediction Modelling</li><li>Hydraulic Modelling and Circulation Pressure Prediction</li><li>Nitrogen Injection and Multiphase Flow Modelling</li><li>CT Cleanout and Solids Transport Simulation</li><li>CT Milling and Drilling Performance Modelling</li><li>CT Stimulation and Acid Placement Simulation</li><li>PROSPER-Based Well Performance and CT Intervention Modelling</li><li>Integrated Wellbore Hydraulics and Downhole Pressure Analysis</li><li>Sensitivity Analysis, Design Optimization and Simulation Validation</li><li>Advanced CT Operations in Deviated and Horizontal Wells</li><li>Integrated CT Job Programme and Engineering Design Report</li></ol></details><details class="outline-mod"><summary>Module 4: Hydraulic Workover, Snubbing and Well Control Operations</summary><ol><li>Hydraulic Workover Unit and Operational Configuration</li><li>Snubbing and Hydraulic Pipe Manipulation Under Pressure</li><li>Live-Well Tubing and Completion Installation/Recovery</li><li>Hydraulic Workover Force, Load and Capacity Calculations</li><li>Pipe Buckling, Compression and Tension Analysis During Snubbing</li><li>Well Control Engineering for Hydraulic Workover Operations</li><li>Pressure Control Equipment Configuration and Integrity Testing</li><li>Stripper, BOP and Annular Control System Operations</li><li>Snubbing Basket, Slips and Hydraulic Jack System Operation</li><li>Advanced Well Kill, Circulation and Fluid Displacement Design</li><li>Hydraulic Workover in High-Pressure and High-Temperature Wells</li><li>Combined CT and Hydraulic Workover Intervention Strategies</li><li>HWO Job Design, Execution Programme and Operational Risk Assessment</li></ol></details><details class="outline-mod"><summary>Module 5: Industry-Focused Case Studies and Field Applications</summary><ol><li>Coiled Tubing Intervention in High-Pressure Producing Wells</li><li>CT Cleanout and Sand Removal in Deviated and Horizontal Wells</li><li>Nitrogen-Assisted Well Unloading and Production Restoration</li><li>CT Milling and Fishing in Complex Wellbore Conditions</li><li>CT Stimulation and Acidizing in Mature Oil and Gas Wells</li><li>CT Lock-Up and Reach-Limit Challenges in Extended-Reach Wells</li><li>CT Fatigue-Related Failure and String Failure Investigation</li><li>Hydraulic Workover Tubing Recovery Under Live-Well Conditions</li><li>Snubbing Operations in High-Pressure Gas Wells</li><li>Hydraulic Workover Completion Installation and Replacement</li><li>Combined CT and HWO Well Intervention Case Studies</li><li>Review of Actual or Simulated Field Job Programmes and Operational Reports</li></ol></details><details class="outline-mod"><summary>Module 6: Technical Troubleshooting, Failure Analysis and Engineering Solutions</summary><ol><li>CT String Fatigue, Cracking and Premature Failure Diagnosis</li><li>CT Buckling, Helical Lock-Up and Reach-Limit Troubleshooting</li><li>Injector Slip, Chain and Gripper System Performance Problems</li><li>CT Reel, Gooseneck and Guide Arch Mechanical Fault Diagnosis</li><li>CT Pressure Control and BOP Leakage Investigation</li><li>CT Hydraulic System Pressure and Flow Irregularities</li><li>Downhole Tool, Motor and BHA Operational Failures</li><li>CT Milling, Drilling and Cleanout Performance Problems</li><li>Nitrogen Injection, Gas-Liquid Flow and Circulation Problems</li><li>HWO Hydraulic Jack, Slips and Pipe Handling System Failures</li><li>Snubbing Force Imbalance and Pipe Movement Problems</li><li>Well Control Complications and Pressure Control Equipment Failures</li><li>Root Cause Failure Analysis and Corrective Engineering Solutions</li><li>Development of Field Troubleshooting Procedures and Contingency Plans</li><li>Integrated CT/HWO Technical Problem-Solving Exercises and Competency Assessment</li></ol></details></div>
+              <div class="vid-panel" x-data="videoPanel('ct-workover')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=ct-workover" class="btn-primary" style="margin-top:14px">Unlock for $200</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="ct-software">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('ct-software')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Coiled Tubing Operations and Design Using Industry Software</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'ct-software' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=ct-software" class="course-price-tag price-link" aria-label="Pay $200 for Coiled Tubing Operations and Design Using Industry Software">$200</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'ct-software'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776523043/What-is-Coiled-Tubing_tlr7qo.webp" alt="Coiled Tubing Operations and Design Using Industry Software" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=ct-software" class="course-price-pill" style="text-decoration:none">$200 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=ct-software" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('ct-software')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=ct-software" class="btn-primary" style="margin-top:14px">Unlock for $200</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="slickline">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('slickline')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Slickline Operations and Bottom Hole Assembly</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'slickline' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=slickline" class="course-price-tag price-link" aria-label="Pay $250 for Advanced Slickline Operations and Bottom Hole Assembly">$250</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'slickline'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776523369/images_31_xr6xgo.jpg" alt="Advanced Slickline Operations and Bottom Hole Assembly" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=slickline" class="course-price-pill" style="text-decoration:none">$250 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=slickline" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('slickline')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=slickline" class="btn-primary" style="margin-top:14px">Unlock for $250</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="course-group reveal">
+        <div class="cat-header">2 — Wellhead Systems &amp; Pressure Control</div>
+        <div class="course-group-list">
+          <div class="course-accordion-item" id="wellhead-xmas">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('wellhead-xmas')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Wellhead &amp; X-Mas Tree Installation &amp; Maintenance</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'wellhead-xmas' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=wellhead-xmas" class="course-price-tag price-link" aria-label="Pay $200 for Wellhead &amp; X-Mas Tree Installation &amp; Maintenance">$200</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'wellhead-xmas'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776524806/images_48_f7q6vd.jpg" alt="Wellhead &amp; X-Mas Tree Installation &amp; Maintenance" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=wellhead-xmas" class="course-price-pill" style="text-decoration:none">$200 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=wellhead-xmas" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('wellhead-xmas')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=wellhead-xmas" class="btn-primary" style="margin-top:14px">Unlock for $200</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="wellhead-pressure">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('wellhead-pressure')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Wellhead Operations &amp; Pressure Control System</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'wellhead-pressure' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=wellhead-pressure" class="course-price-tag price-link" aria-label="Pay $220 for Wellhead Operations &amp; Pressure Control System">$220</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'wellhead-pressure'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776524597/Wellhead_Bohrlochkopf_qgkmdv.jpg" alt="Wellhead Operations &amp; Pressure Control System" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=wellhead-pressure" class="course-price-pill" style="text-decoration:none">$220 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=wellhead-pressure" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('wellhead-pressure')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=wellhead-pressure" class="btn-primary" style="margin-top:14px">Unlock for $220</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="well-eng-design">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('well-eng-design')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Well Engineering and Design</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'well-eng-design' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=well-eng-design" class="course-price-tag price-link" aria-label="Pay $150 for Well Engineering and Design">$150</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'well-eng-design'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776524641/images_47_ombcey.jpg" alt="Well Engineering and Design" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=well-eng-design" class="course-price-pill" style="text-decoration:none">$150 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=well-eng-design" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('well-eng-design')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=well-eng-design" class="btn-primary" style="margin-top:14px">Unlock for $150</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="course-group reveal">
+        <div class="cat-header">3 — Well Testing, Production &amp; Reservoir Management</div>
+        <div class="course-group-list">
+          <div class="course-accordion-item" id="well-test">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('well-test')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Well Test Operations</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'well-test' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=well-test" class="course-price-tag price-link" aria-label="Pay $210 for Advanced Well Test Operations">$210</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'well-test'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776530393/images_49_sjrw5b.jpg" alt="Advanced Well Test Operations" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=well-test" class="course-price-pill" style="text-decoration:none">$210 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=well-test" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('well-test')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=well-test" class="btn-primary" style="margin-top:14px">Unlock for $210</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="well-performance">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('well-performance')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Well Performance and Flow Analysis</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'well-performance' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=well-performance" class="course-price-tag price-link" aria-label="Pay $150 for Well Performance and Flow Analysis">$150</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'well-performance'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776530430/images_51_ybhqfx.jpg" alt="Well Performance and Flow Analysis" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=well-performance" class="course-price-pill" style="text-decoration:none">$150 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=well-performance" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('well-performance')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=well-performance" class="btn-primary" style="margin-top:14px">Unlock for $150</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="well-surveillance">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('well-surveillance')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Well and Reservoir Surveillance</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'well-surveillance' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=well-surveillance" class="course-price-tag price-link" aria-label="Pay $210 for Advanced Well and Reservoir Surveillance">$210</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'well-surveillance'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776897155/images_52_jatqy2.jpg" alt="Advanced Well and Reservoir Surveillance" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=well-surveillance" class="course-price-pill" style="text-decoration:none">$210 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=well-surveillance" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('well-surveillance')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=well-surveillance" class="btn-primary" style="margin-top:14px">Unlock for $210</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="petroleum-diploma">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('petroleum-diploma')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Professional Diploma in Petroleum Production and Reservoir Management</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'petroleum-diploma' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=petroleum-diploma" class="course-price-tag price-link" aria-label="Pay $350 for Professional Diploma in Petroleum Production and Reservoir Management">$350</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'petroleum-diploma'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776530217/1757307086219_wc6joy.jpg" alt="Professional Diploma in Petroleum Production and Reservoir Management" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=petroleum-diploma" class="course-price-pill" style="text-decoration:none">$350 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=petroleum-diploma" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('petroleum-diploma')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=petroleum-diploma" class="btn-primary" style="margin-top:14px">Unlock for $350</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="course-group reveal">
+        <div class="cat-header">4 — Rotating Equipment &amp; Mechanical Integrity</div>
+        <div class="course-group-list">
+          <div class="course-accordion-item" id="machinery-balancing">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('machinery-balancing')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Machinery Balancing</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'machinery-balancing' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=machinery-balancing" class="course-price-tag price-link" aria-label="Pay $230 for Advanced Machinery Balancing">$230</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'machinery-balancing'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1794167202/IMG-20261108-WA0011_uamcvf.jpg" alt="Advanced Machinery Balancing" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=machinery-balancing" class="course-price-pill" style="text-decoration:none">$230 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description">12 Advanced Professional Modules – Industry-Focused and Hands-On Practical Training</p>
+                  <div class="course-meta"><span class="course-tag">12 Modules</span></div>
+                  
+                  <a href="payment.html?course=machinery-balancing" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="outline-wrap"><h3 class="art-section-title" style="margin-top:0">Course Outline</h3><details class="outline-mod"><summary>Module 1: Advanced Rotor Dynamics and Unbalance Analysis</summary><ol><li>Advanced Rotor Dynamic Behaviour and Stability Analysis</li><li>Static, Couple, Dynamic and Quasi-Static Unbalance Analysis</li><li>Rigid and Flexible Rotor Unbalance Assessment</li><li>Rotor Whirl, Whip and Shaft Deflection Analysis</li><li>Critical Speed and Natural Frequency Analysis</li><li>Rotor Resonance and Mode Shape Analysis</li><li>Rotor Bending and Mechanical Runout Assessment</li><li>Rotor Mass Distribution and Unbalance Response Analysis</li></ol></details><details class="outline-mod"><summary>Module 2: Advanced Vibration and Phase Analysis for Machinery Balancing</summary><ol><li>Advanced FFT Spectrum Analysis</li><li>Time Waveform and Vibration Signature Interpretation</li><li>Vibration Displacement, Velocity and Acceleration Analysis</li><li>Frequency Orders and Harmonic Analysis (1X, 2X, 3X)</li><li>Phase Angle Measurement and Interpretation</li><li>Tachometer and Keyphasor Reference Analysis</li><li>Bode, Polar and Waterfall Plot Interpretation</li><li>Orbit Analysis and Shaft Vibration Assessment</li><li>Unbalance Signature Identification</li><li>Vibration-Based Balancing Verification</li></ol></details><details class="outline-mod"><summary>Module 3: International Balancing Standards and Rotor Acceptance Criteria</summary><ol><li>ISO 21940 Rotor Balancing Requirements</li><li>API 610 and API 617 Balancing Requirements</li><li>Balance Quality Grades and G-Grade Selection</li><li>Specific Residual Unbalance Determination</li><li>Permissible Residual Unbalance Calculations</li><li>Balancing Tolerance and Acceptance Limits</li><li>Rigid and Flexible Rotor Acceptance Criteria</li><li>High-Speed Rotor Balancing Requirements</li><li>Balancing Quality Verification and Certification</li><li>Engineering Documentation and Compliance Assessment</li></ol></details><details class="outline-mod"><summary>Module 4: Advanced Static and Single-Plane Dynamic Balancing</summary><ol><li>Static Unbalance Assessment and Correction</li><li>Knife-Edge and Roller Balancing Techniques</li><li>Heavy-Spot Identification and Correction</li><li>Single-Plane Dynamic Balancing Procedures</li><li>Trial-Weight Method and Test Run Evaluation</li><li>Influence Coefficient Method</li><li>Vibration Amplitude and Phase Response Analysis</li><li>Correction Weight and Angular Position Calculations</li><li>Vector Addition and Subtraction</li><li>Single-Plane Balancing Verification</li></ol></details><details class="outline-mod"><summary>Module 5: Advanced Two-Plane Dynamic Balancing</summary><ol><li>Two-Plane Rotor Balancing Strategy</li><li>Selection and Positioning of Balancing Planes</li><li>Dual-Sensor Measurement and Phase Reference Configuration</li><li>Trial-Weight Testing in Two Planes</li><li>Cross-Influence and Rotor Response Analysis</li><li>Influence Coefficient Calculations</li><li>Two-Plane Correction Weight Determination</li><li>Angular Correction and Weight Distribution</li><li>Correction Weight Splitting Techniques</li><li>Two-Plane Residual Unbalance Verification</li></ol></details><details class="outline-mod"><summary>Module 6: Advanced Multi-Plane and Flexible Rotor Balancing</summary><ol><li>Multi-Plane Rotor Balancing Methodologies</li><li>Selection of Multiple Correction Planes</li><li>Multi-Plane Influence Coefficient Method</li><li>Matrix-Based Balancing Calculations</li><li>Flexible Rotor Dynamic Response Analysis</li><li>Modal Balancing Techniques</li><li>Rotor Mode Shape Identification</li><li>Critical Speed-Related Balancing</li><li>High-Speed Flexible Rotor Balancing</li><li>Multi-Plane Balancing Verification</li></ol></details><details class="outline-mod"><summary>Module 7: Advanced In-Situ Field Balancing of Industrial Machinery</summary><ol><li>Advanced Single-Plane Field Balancing</li><li>Two-Plane In-Situ Balancing Procedures</li><li>Field Vibration and Phase Data Acquisition</li><li>Trial-Weight Installation and Response Evaluation</li><li>Field Correction Weight Calculations</li><li>Balancing of Installed Fans and Blowers</li><li>Centrifugal Pump Field Balancing</li><li>Motor and Generator Field Balancing</li><li>Field Balancing of Industrial Rotating Assemblies</li><li>Final Vibration Verification and Acceptance</li></ol></details><details class="outline-mod"><summary>Module 8: High-Speed and Equipment-Specific Rotor Balancing</summary><ol><li>High-Speed Rotor Balancing Techniques</li><li>Centrifugal Pump Rotor and Impeller Balancing</li><li>Electric Motor and Generator Rotor Balancing</li><li>Industrial Fan and Blower Rotor Balancing</li><li>Centrifugal Compressor Rotor and Impeller Balancing</li><li>Gas Turbine Rotor Balancing</li><li>Steam Turbine Rotor Balancing</li><li>Industrial Shaft and Coupling Balancing</li><li>Flywheel and Rotating Drum Balancing</li><li>Equipment-Specific Balancing Procedures and Acceptance Requirements</li></ol></details><details class="outline-mod"><summary>Module 9: Advanced Balancing Instrumentation, Software and Data Analysis</summary><ol><li>Advanced Portable Vibration Analyser Operation</li><li>Accelerometer and Vibration Sensor Configuration</li><li>Laser Tachometer and Phase Reference Measurement</li><li>RPM and Phase Data Acquisition</li><li>Advanced FFT and Vibration Data Interpretation</li><li>Single-Plane and Two-Plane Balancing Instrument Operation</li><li>Computerized Balancing Systems</li><li>Influence Coefficient Software Applications</li><li>Balancing Data Processing and Analysis</li><li>Digital Balancing Reports and Performance Records</li></ol></details><details class="outline-mod"><summary>Module 10: Advanced Balancing Calculations and Engineering Modelling</summary><ol><li>Unbalance Measurement and Engineering Units</li><li>Centrifugal Force and Angular Velocity Calculations</li><li>Specific Residual Unbalance Calculations</li><li>Permissible Residual Unbalance Determination</li><li>Trial-Weight Selection and Calculations</li><li>Correction Weight and Radius Calculations</li><li>Angular Position and Correction Calculations</li><li>Vector Analysis and Phasor Diagrams</li><li>Two-Plane Influence Coefficient Calculations</li><li>Multi-Plane Matrix Calculations</li><li>Modal Balancing Calculations</li><li>Residual Unbalance and Balancing Quality Verification</li></ol></details><details class="outline-mod"><summary>Module 11: Advanced Balancing Fault Diagnosis, Troubleshooting and Root Cause Analysis</summary><ol><li>Advanced Rotor Unbalance Identification</li><li>Unbalance Versus Misalignment Diagnosis</li><li>Unbalance Versus Mechanical Looseness Analysis</li><li>Bent Shaft and Rotor Eccentricity Investigation</li><li>Bearing Defect and Mechanical Vibration Diagnosis</li><li>Resonance-Related Vibration Investigation</li><li>Cavitation and Hydraulic Instability Assessment</li><li>Electrical and Mechanical Vibration Differentiation</li><li>Incorrect Correction Weight and Balancing Error Investigation</li><li>Field Balancing Failure Analysis</li><li>Root Cause Failure Analysis (RCFA)</li><li>Corrective and Preventive Engineering Recommendations</li></ol></details><details class="outline-mod"><summary>Module 12: Advanced Industrial Balancing Workshop, Case Studies and Competency Assessment</summary><ol><li>Advanced Industrial Balancing Job Planning and Quality Control</li><li>Balancing Machine Safety and Correction Weight Attachment Procedures</li><li>Static Balancing of Industrial Rotors</li><li>Single-Plane and Two-Plane Dynamic Balancing</li><li>Multi-Plane and Flexible Rotor Balancing</li><li>Practical Balancing of Pump Impellers, Motors and Industrial Fans</li><li>Compressor and Turbine Rotor Balancing Demonstrations</li><li>In-Situ Field Balancing and Vibration Verification</li><li>Industrial High-Speed Machinery Balancing Case Studies</li><li>Critical Speed and Resonance Troubleshooting Exercises</li><li>Final Rotor Balancing Project and Engineering Report</li><li>Practical Competency Examination and Technical Evaluation</li></ol></details></div>
+              <div class="vid-panel" x-data="videoPanel('machinery-balancing')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=machinery-balancing" class="btn-primary" style="margin-top:14px">Unlock for $230</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="rotating-diploma">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('rotating-diploma')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Diploma in Rotating Equipment Engineering &amp; Reliability Maintenance</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'rotating-diploma' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=rotating-diploma" class="course-price-tag price-link" aria-label="Pay $210 for Diploma in Rotating Equipment Engineering &amp; Reliability Maintenance">$210</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'rotating-diploma'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1776512085/c1_wqim9n.jpg" alt="Diploma in Rotating Equipment Engineering &amp; Reliability Maintenance" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=rotating-diploma" class="course-price-pill" style="text-decoration:none">$210 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=rotating-diploma" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('rotating-diploma')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=rotating-diploma" class="btn-primary" style="margin-top:14px">Unlock for $210</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="rotating-diagnosis">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('rotating-diagnosis')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Rotating Equipment - Advanced Diagnosis &amp; Condition Monitoring</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'rotating-diagnosis' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=rotating-diagnosis" class="course-price-tag price-link" aria-label="Pay $240 for Rotating Equipment - Advanced Diagnosis &amp; Condition Monitoring">$240</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'rotating-diagnosis'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1776512059/c1b_nokrjz.jpg" alt="Rotating Equipment - Advanced Diagnosis &amp; Condition Monitoring" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=rotating-diagnosis" class="course-price-pill" style="text-decoration:none">$240 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=rotating-diagnosis" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('rotating-diagnosis')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=rotating-diagnosis" class="btn-primary" style="margin-top:14px">Unlock for $240</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="turbomachinery">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('turbomachinery')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Advanced Turbomachinery Analysis &amp; Data Acquisition</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'turbomachinery' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=turbomachinery" class="course-price-tag price-link" aria-label="Price on request for Advanced Turbomachinery Analysis &amp; Data Acquisition">Price on request</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'turbomachinery'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1794167188/IMG-20261108-WA0010_pvuria.jpg" alt="Advanced Turbomachinery Analysis &amp; Data Acquisition" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=turbomachinery" class="course-price-pill" style="text-decoration:none">Price on request <span>Enquire</span></a>
+                  <p class="course-description">12 Advanced Professional Modules – Industry-Focused and Hands-On Practical Training</p>
+                  <div class="course-meta"><span class="course-tag">12 Modules</span></div>
+                  
+                  <a href="payment.html?course=turbomachinery" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="outline-wrap"><h3 class="art-section-title" style="margin-top:0">Course Outline</h3><details class="outline-mod"><summary>Module 1: Advanced Rotor Dynamics and Turbomachinery Mechanical Analysis</summary><ol><li>Advanced Rotor Dynamic Behaviour and Stability Analysis</li><li>Critical Speed and Natural Frequency Analysis</li><li>Rotor Whirl and Whip Investigation</li><li>Rotor Unbalance Response Analysis</li><li>Rotor Resonance and Stability Assessment</li><li>Shaft Deflection and Thermal Bow Analysis</li><li>Rotor Rub and Internal Clearance Analysis</li><li>Rotor Dynamic Modelling and Interpretation</li><li>Rotor Stability and Operating Envelope Assessment</li></ol></details><details class="outline-mod"><summary>Module 2: Advanced Gas Turbine Performance and Combustion Analysis</summary><ol><li>Gas Turbine Thermodynamic Performance Analysis</li><li>Compressor Section Performance Assessment</li><li>Combustion System Performance Monitoring</li><li>Turbine Section Efficiency Analysis</li><li>Exhaust Gas Temperature Spreading Analysis</li><li>Turbine Inlet Temperature Assessment</li><li>Compressor Fouling and Degradation Analysis</li><li>Heat Rate and Specific Fuel Consumption Calculations</li><li>Turbine Power Output and Efficiency Evaluation</li><li>Gas Turbine Performance Trending and Optimization</li></ol></details><details class="outline-mod"><summary>Module 3: Advanced Centrifugal Compressor Performance and Aerodynamic Analysis</summary><ol><li>Compressor Performance Mapping and Evaluation</li><li>Polytropic and Isentropic Head Calculations</li><li>Compressor Efficiency and Pressure Ratio Analysis</li><li>Surge, Stonewall and Choke Investigation</li><li>Anti-Surge Control System Performance Analysis</li><li>Surge Margin Calculation and Operating Envelope Assessment</li><li>Impeller and Diffuser Aerodynamic Performance</li><li>Compressor Gas Composition and Molecular Weight Effects</li><li>Compressor Capacity and Power Evaluation</li><li>Compressor Performance Degradation Diagnosis</li></ol></details><details class="outline-mod"><summary>Module 4: Advanced Steam Turbine Performance and Condition Analysis</summary><ol><li>Steam Turbine Performance and Efficiency Analysis</li><li>Turbine Blade and Nozzle Performance Assessment</li><li>Steam Pressure and Temperature Data Analysis</li><li>Steam Flow and Energy Balance Calculations</li><li>Turbine Heat Rate and Power Output Evaluation</li><li>Condenser and Exhaust System Performance Analysis</li><li>Differential Expansion Monitoring</li><li>Turbine Rotor Thermal Behaviour Analysis</li><li>Steam Turbine Performance Degradation Diagnosis</li></ol></details><details class="outline-mod"><summary>Module 5: Advanced Machinery Vibration and Shaft Dynamics Analysis</summary><ol><li>Advanced FFT Spectrum Analysis</li><li>Time Waveform and Phase Analysis</li><li>Orbit, Polar and Bode Plot Interpretation</li><li>Waterfall and Cascade Plot Analysis</li><li>Shaft Relative and Absolute Vibration Analysis</li><li>Shaft Centreline and Axial Position Analysis</li><li>Proximity Probe Calibration and Signal Interpretation</li><li>Vibration Phase and Cross-Channel Analysis</li><li>Critical Speed Passage and Transient Vibration Analysis</li><li>Advanced Machinery Fault Identification</li></ol></details><details class="outline-mod"><summary>Module 6: Advanced Turbomachinery Instrumentation, Data Acquisition and Monitoring</summary><ol><li>Advanced Machinery Sensor Configuration and Calibration</li><li>Online and Offline Machinery Data Acquisition</li><li>Vibration and Shaft Position Data Collection</li><li>Temperature, Pressure and Flow Data Analysis</li><li>Speed, Phase Reference and Keyphasor Data Acquisition</li><li>Bently Nevada 3500 Monitoring System Configuration</li><li>Machinery Protection and Shutdown Monitoring</li><li>Alarm and Trip Setpoint Analysis</li><li>Data Quality, Validation and Measurement Accuracy</li><li>Industrial Machinery Monitoring System Integration</li></ol></details><details class="outline-mod"><summary>Module 7: Advanced Bearing, Lubrication and Seal System Analysis</summary><ol><li>Journal and Thrust Bearing Performance Analysis</li><li>Bearing Oil Film and Clearance Assessment</li><li>Bearing Temperature and Vibration Trending</li><li>Bearing Failure Diagnosis and Damage Analysis</li><li>Lubrication System Performance Evaluation</li><li>Oil Contamination and Condition Analysis</li><li>Dry Gas Seal Performance Monitoring</li><li>Compressor Seal Gas System Analysis</li><li>Seal Leakage and Differential Pressure Monitoring</li><li>API Seal Support System Performance Assessment</li></ol></details><details class="outline-mod"><summary>Module 8: Advanced Turbomachinery Transient, Start-Up and Shutdown Analysis</summary><ol><li>Start-Up and Shutdown Machinery Data Analysis</li><li>Acceleration and Deceleration Vibration Assessment</li><li>Critical Speed Passage Monitoring</li><li>Rotor Thermal Bow and Differential Expansion Analysis</li><li>Transient Vibration and Stability Evaluation</li><li>Load Change and Operating Condition Analysis</li><li>Turbine Start-Up Performance Assessment</li><li>Compressor Start-Up and Surge Monitoring</li><li>Trip Event and Shutdown Data Investigation</li><li>Transient Performance Reporting</li></ol></details><details class="outline-mod"><summary>Module 9: Advanced Turbomachinery Fault Diagnosis and Root Cause Failure Analysis</summary><ol><li>Advanced Machinery Fault Signature Analysis</li><li>Rotor Unbalance and Misalignment Diagnosis</li><li>Bearing Defect and Lubrication Failure Investigation</li><li>Oil Whirl and Oil Whip Diagnosis</li><li>Rotor Rub and Mechanical Looseness Investigation</li><li>Resonance and Structural Vibration Diagnosis</li><li>Compressor Surge and Aerodynamic Instability Diagnosis</li><li>Turbine Performance Degradation Investigation</li><li>Seal System Failure Analysis</li><li>Root Cause Failure Analysis (RCFA)</li><li>Corrective and Preventive Engineering Recommendations</li></ol></details><details class="outline-mod"><summary>Module 10: Turbomachinery Analysis Software, Digital Monitoring and Predictive Analytics</summary><ol><li>Bently Nevada System 1 Machinery Analysis</li><li>SKF @ptitude Analyst and Machinery Monitoring</li><li>Emerson AMS Machinery Manager</li><li>VibXpert and VibroSight Data Analysis</li><li>Advanced Vibration Analysis Software Applications</li><li>Compressor Performance Modelling and Simulation</li><li>Gas Turbine Performance Monitoring Software</li><li>Machinery Data Trending and Statistical Analysis</li><li>Predictive Maintenance and Condition-Based Monitoring</li><li>Digital Machinery Diagnostics and Performance Dashboards</li></ol></details><details class="outline-mod"><summary>Module 11: Advanced Field Data Collection, Performance Testing and Industrial Analysis Workshop</summary><ol><li>Advanced Turbomachinery Field Data Collection</li><li>Vibration Measurement and Diagnostic Exercises</li><li>Shaft Orbit and Proximity Probe Data Acquisition</li><li>Compressor Performance Testing and Data Interpretation</li><li>Gas Turbine Performance Testing and Evaluation</li><li>Steam Turbine Performance Assessment</li><li>Bearing and Lubrication Condition Assessment</li><li>Seal System Monitoring and Performance Evaluation</li><li>Machinery Operating Data Verification and Validation</li><li>Industrial Machinery Inspection and Technical Reporting</li><li>Practical Fault Diagnosis Using Real or Simulated Industrial Data</li></ol></details><details class="outline-mod"><summary>Module 12: Advanced Industrial Case Studies, Engineering Troubleshooting and Competency Assessment</summary><ol><li>Gas Turbine Vibration and Performance Failure Case Studies</li><li>Centrifugal Compressor Surge and Performance Degradation Cases</li><li>Steam Turbine Rotor and Thermal Behaviour Case Studies</li><li>Bearing and Seal Failure Investigation</li><li>Advanced Rotor Dynamic Troubleshooting</li><li>Machinery Protection System and Trip Event Investigation</li><li>Integrated Turbomachinery Condition Assessment</li><li>Industrial Root Cause Failure Analysis Project</li><li>Development of Engineering Recommendations</li><li>Preparation of Advanced Machinery Analysis Reports</li><li>Final Industrial Practical Project and Competency Assessment</li></ol></details></div>
+              <div class="vid-panel" x-data="videoPanel('turbomachinery')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="contact.html" class="btn-primary" style="margin-top:14px">Enquire to unlock</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-accordion-item" id="flange-bolted">
+            <div class="course-row">
+              <button class="course-accordion-trigger" @click="toggle('flange-bolted')">
+                <span class="course-medal">🎖</span>
+                <span class="course-accordion-name">Flange Management &amp; Bolted Joints</span>
+                <svg class="course-chevron w-5 h-5" :style="openCourse === 'flange-bolted' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <a href="payment.html?course=flange-bolted" class="course-price-tag price-link" aria-label="Pay $200 for Flange Management &amp; Bolted Joints">$200</a>
+            </div>
+            <div class="course-accordion-body" x-show="openCourse === 'flange-bolted'" x-transition>
+              <div class="course-accordion-inner">
+                <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/q_auto/f_auto/v1776898624/images_58_dksiib.jpg" alt="Flange Management &amp; Bolted Joints" loading="lazy" /><div class="course-img-overlay"></div></div>
+                <div class="course-content-wrap">
+                  <a href="payment.html?course=flange-bolted" class="course-price-pill" style="text-decoration:none">$200 <span>Enrol &amp; Pay</span></a>
+                  <p class="course-description" style="font-style:italic">Course outline coming soon.</p>
+                  
+                  <a href="payment.html?course=flange-bolted" class="course-view-link">View Course Details &amp; Pay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+              </div>
+              <div class="vid-panel" x-data="videoPanel('flange-bolted')">
+                <div class="vid-head"><span class="art-section-title" style="margin:0">Course Videos</span><span class="vid-state" :class="unlocked ? 'on' : ''" x-text="unlocked ? 'Unlocked' : 'Locked'"></span></div>
+                <div class="vid-grid">
+                  <div class="vid-stage" :class="unlocked ? '' : 'locked'">
+                    <template x-if="unlocked"><div class="vid-play">
+                      <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
+                      <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
+                    </div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=flange-bolted" class="btn-primary" style="margin-top:14px">Unlock for $200</a></div></template>
+                  </div>
+                  <ol class="vid-list">
+                    <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>
+                    <template x-for="(l, i) in c.lessons" :key="i"><li><button type="button" class="vid-item" :class="{ active: unlocked &amp;&amp; i === current }" :disabled="!unlocked" @click="pick(i)"><span x-text="unlocked ? '▶' : '🔒'"></span><span x-text="(i + 1) + '. ' + l.t"></span></button></li></template>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PDF Download -->
+      <div class="mt-12 flex items-center gap-4 reveal">
+        <a href="mailto:info@doilwellinstitute.com?subject=PDF%20Catalogue%20Request&body=Hello%2C%0A%0AI%20would%20like%20to%20receive%20the%20full%20course%20catalogue%20PDF.%0A%0AThank%20you." class="btn-outline flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Request PDF Catalogue
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="py-20 px-4 sm:px-6" style="background: linear-gradient(135deg, #0a0a08 0%, #1a1204 100%);">
+    <div class="max-w-4xl mx-auto text-center">
+      <span class="section-eyebrow block mb-4 reveal">Ready to Advance?</span>
+      <h2 class="font-display font-900 text-white uppercase reveal" style="font-size:clamp(2.2rem,5vw,3.8rem);line-height:0.95" data-delay="100">
+        Enrol in a <span style="color:var(--amber)">Programme</span><br />Today
+      </h2>
+      <p class="font-body text-lg text-stone-400 mt-6 mb-10 reveal" data-delay="200">All courses are available for individual delegates or corporate cohorts. Bespoke delivery on-site or at our Lagos facility.</p>
+      <div class="flex flex-wrap gap-4 justify-center reveal" data-delay="300">
+        <a href="contact.html" class="btn-primary">Contact Us to Enrol</a>
+        <a href="cert.html" class="btn-outline" style="color:#e8e4d8;border-color:rgba(232,228,216,0.35)">View Certifications</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer-surface py-16 px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-4 gap-10 pb-12 border-b border-subtle">
+        <div class="md:col-span-2">
+          <span class="font-display font-900 text-3xl text-amber-500 uppercase tracking-tight block mb-2">Doilwell Institute</span>
+          <span class="font-display font-400 text-xs text-subtext uppercase tracking-widest block mb-6">Center For Applied Engineering and Technology</span>
+          <p class="font-body text-lg leading-relaxed mb-6 text-body-muted">Head Office: Doilwell Training and Service Limited, Plot 105 Trade Zone Road, Ibeju-lekki, Lagos, Nigeria.</p>
+          <div class="space-y-2">
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Tel:</span>+234-7026-364-463</p>
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Email:</span><a href="mailto:info@doilwellinstitute.com" class="hover:text-amber-500 transition-colors">info@doilwellinstitute.com</a></p>
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Email:</span><a href="mailto:doilwellinstitute@gmail.com" class="hover:text-amber-500 transition-colors">doilwellinstitute@gmail.com</a></p>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-display font-700 uppercase tracking-widest text-sm mb-6 text-body-main">About Us</h4>
+          <ul class="space-y-3">
+            <li><a href="homepage.html#about" class="font-body text-body-muted hover:text-amber-500 transition-colors">Who we are</a></li>
+            <li><a href="cert.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Our Accreditations</a></li>
+            <li><a href="contact.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Get in Touch</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-display font-700 uppercase tracking-widest text-sm mb-6 text-body-main">Quick Links</h4>
+          <ul class="space-y-3">
+            <li><a href="courses.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Courses</a></li>
+            <li><a href="cert.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Certifications</a></li>
+            <li><a href="contact.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Contact Form</a></li>
+            <li><a href="mailto:info@doilwellinstitute.com" class="font-body text-body-muted hover:text-amber-500 transition-colors">Email</a></li>
+            <li><a href="tel:+2347026364463" class="font-body text-body-muted hover:text-amber-500 transition-colors">Telephone</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="font-display font-400 text-sm tracking-wide text-subtext">&copy; 2025 Doilwell Institute. All rights reserved.</p>
+        <ul class="flex gap-8">
+          <li><a href="homepage.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Home</a></li>
+          <li><a href="cert.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Certificates</a></li>
+          <li><a href="contact.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Contact</a></li>
+          <li><a href="courses.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Courses</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating buttons -->
+  <a href="https://api.whatsapp.com/send?phone=+2347026364463&text=Hello,Chat%20With%20Doilwell" class="float-wa" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <div class="float-phone" onclick="window.location.href='tel:+2347026364463'" role="button" tabindex="0" aria-label="Call us">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+  </div>
+  <div class="float-email" onclick="window.location.href='mailto:info@doilwellinstitute.com'" role="button" tabindex="0" aria-label="Email us">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+  </div>
+
+  <script>
+    function courseList(){ return { openCourse: null, toggle(id){ this.openCourse = this.openCourse === id ? null : id; },
+      init(){ const id = new URLSearchParams(location.search).get('open');
+        if (id && window.DOILWELL.courses[id]) { this.openCourse = id; this.$nextTick(() => setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 400)); } } }; }
+    function coursesApp() {
+      return {
+        menuOpen: false,
+        darkMode: false,
+        init() {
+          const saved = localStorage.getItem('doilwell-theme');
+          if (saved === 'dark') { this.darkMode = true; document.documentElement.classList.add('dark'); }
+          this.$nextTick(() => {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(e => {
+                if (e.isIntersecting) {
+                  const delay = parseInt(e.target.dataset.delay || 0);
+                  setTimeout(() => e.target.classList.add('revealed'), delay);
+                }
+              });
+            }, { threshold: 0.08 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+          });
+        },
+        toggleDark() {
+          this.darkMode = !this.darkMode;
+          if (this.darkMode) { document.documentElement.classList.add('dark'); localStorage.setItem('doilwell-theme', 'dark'); }
+          else { document.documentElement.classList.remove('dark'); localStorage.setItem('doilwell-theme', 'light'); }
+        }
+      }
+    }
+  </script>
+</body>
+</html>

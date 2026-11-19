@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in or create an account | Doilwell Institute</title>
+<meta name="theme-color" content="#0a0a08">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = { darkMode: 'class', theme: { extend: {
+  fontFamily: { display: ['"Barlow Condensed"', 'sans-serif'], body: ['"Crimson Pro"', 'Georgia', 'serif'] },
+  colors: { ink: '#0a0a08', mist: 'rgb(var(--bg) / <alpha-value>)', surface: 'rgb(var(--surface) / <alpha-value>)', body: 'rgb(var(--text) / <alpha-value>)', muted: 'rgb(var(--muted) / <alpha-value>)', accent: 'rgb(var(--accent) / <alpha-value>)', line: 'rgb(var(--line) / <alpha-value>)' }
+} } };
+</script>
+<script>try{if(localStorage.getItem('doilwell-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style type="text/tailwindcss">
+  @layer components {
+    .field { @apply block w-full min-h-12 border border-line bg-surface px-3.5 font-body text-lg text-body placeholder:text-muted/60 transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent; }
+    .field[aria-invalid="true"] { @apply border-red-700 focus:ring-red-700 dark:border-red-400 dark:focus:ring-red-400; }
+    .label { @apply mb-1.5 block font-display text-sm font-semibold uppercase tracking-[0.12em] text-muted; }
+    .err { @apply mt-1.5 text-base text-red-700 dark:text-red-400; }
+  }
+</style>
+<style>
+  [x-cloak] { display: none !important; }
+    :root { --bg: 245 240 232; --surface: 250 247 242; --text: 26 23 16; --muted: 107 96 71; --accent: 194 65 12; --line: 138 122 90; }
+  .dark { --bg: 10 10 8; --surface: 17 17 9; --text: 232 228 216; --muted: 168 160 144; --accent: 245 158 11; --line: 120 112 90; }
+  .hero-panel { position: relative; isolation: isolate; overflow: hidden; }
+  .hero-panel::before { content: ''; position: absolute; inset: 0; z-index: -2; background: url('homepage.jpeg') center 35% / cover no-repeat; transform: scale(1.05); animation: heroZoom 22s ease-in-out infinite alternate; }
+  .hero-panel::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(135deg, rgba(10,10,8,.88) 0%, rgba(10,10,8,.52) 55%, rgba(194,65,12,.22) 100%), url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); }
+  @keyframes heroZoom { from { transform: scale(1.05); } to { transform: scale(1.13); } }
+  .btn-shimmer::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent); transition: left .5s; }
+  .btn-shimmer:hover:not(:disabled)::before { left: 100%; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body class="bg-mist font-body text-body antialiased">
+<main class="min-h-screen lg:grid lg:grid-cols-[5fr_6fr]">
+
+  <aside class="hero-panel flex items-center bg-ink px-5 pb-4 text-white sm:px-8 lg:flex-col lg:items-start lg:justify-between lg:p-14" style="padding-top:max(1rem,env(safe-area-inset-top))">
+    <a href="/" class="flex items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-500" aria-label="Doilwell Institute home">
+      <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true"><rect width="32" height="32" fill="#f59e0b"/><path d="M7 11h18M7 16h18M7 21h12" stroke="#0a0a08" stroke-width="2.4"/></svg>
+      <span class="font-display text-2xl font-black uppercase leading-none tracking-tight text-amber-500">Doilwell Institute</span>
+    </a>
+    <div class="hidden lg:block">
+      <h2 class="max-w-md font-display text-6xl font-black uppercase leading-[0.95] tracking-tight text-[#f0ece0]">One account for everything at Doilwell Institute.</h2>
+      <p class="mt-5 max-w-sm text-xl italic text-[#c8c0a8]">Sign in to pick up where you left off, or create an account to get started.</p>
+    </div>
+  </aside>
+
+  <section class="flex items-start justify-center px-5 py-8 sm:py-14 lg:items-center" style="padding-bottom:max(2rem,env(safe-area-inset-bottom))">
+    <div x-data="auth()" class="relative w-full max-w-md border border-amber-500/25 bg-surface p-5 before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-amber-500 sm:p-8">
+
+      <div x-show="!who && (mode==='login'||mode==='signup')" role="tablist" aria-label="Account" class="mb-7 grid grid-cols-2 border-b border-body/15">
+        <button type="button" role="tab" :aria-selected="mode==='login'" @click="setMode('login')" class="-mb-px min-h-11 border-b-2 font-display text-base font-semibold uppercase tracking-[0.12em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" :class="mode==='login' ? 'border-amber-500 text-accent' : 'border-transparent text-muted hover:text-accent'">Sign in</button>
+        <button type="button" role="tab" :aria-selected="mode==='signup'" @click="setMode('signup')" class="-mb-px min-h-11 border-b-2 font-display text-base font-semibold uppercase tracking-[0.12em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" :class="mode==='signup' ? 'border-amber-500 text-accent' : 'border-transparent text-muted hover:text-accent'">Create account</button>
+      </div>
+
+      <h1 x-show="!who" class="font-display text-4xl font-black uppercase leading-[0.95] tracking-tight after:mt-4 after:block after:h-0.5 after:w-[60px] after:bg-gradient-to-r after:from-amber-500 after:to-transparent sm:text-5xl" x-text="copy[mode][0]"></h1>
+      <p x-show="!who" class="mt-4 text-lg text-muted" x-text="copy[mode][1]"></p>
+
+      <div x-show="who" x-cloak>
+        <h2 class="font-display text-4xl font-black uppercase leading-[0.95] tracking-tight after:mt-4 after:block after:h-0.5 after:w-[60px] after:bg-gradient-to-r after:from-amber-500 after:to-transparent sm:text-5xl">You are signed in</h2>
+        <p class="mt-4 text-lg text-muted">Signed in as <strong class="text-body" x-text="who && who.name"></strong> (<span x-text="who && who.email"></span>).</p>
+        <div class="mt-6 space-y-3">
+          <a href="homepage.html" class="flex min-h-12 w-full items-center justify-center bg-amber-500 px-4 font-display text-sm font-bold uppercase tracking-[0.2em] text-ink transition-all hover:-translate-y-0.5 hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Continue to the website</a>
+          <button type="button" @click="signOut()" :disabled="loading" class="flex min-h-12 w-full items-center justify-center border border-line px-4 font-display text-sm font-bold uppercase tracking-[0.2em] text-body transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-70">Sign out</button>
+        </div>
+      </div>
+
+      <div role="status" aria-live="polite">
+        <p x-show="msg" x-cloak x-text="msg && msg.text" class="mt-5 border px-3.5 py-3 text-base" :class="msg && msg.type==='ok' ? 'border-green-300 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-200' : 'border-red-300 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200'"></p>
+      </div>
+
+      <form x-show="!who" @submit.prevent="submit()" novalidate class="mt-6 space-y-5">
+
+        <template x-if="mode==='signup'">
+          <div>
+            <label for="name" class="label">Full name</label>
+            <input id="name" type="text" x-model="f.name" autocomplete="name" class="field" placeholder="Alex Morgan" :aria-invalid="!!errors.name" aria-describedby="e-name">
+            <p id="e-name" class="err" x-show="errors.name" x-text="errors.name"></p>
+          </div>
+        </template>
+
+        <div x-show="mode!=='update'">
+          <label for="email" class="label">Email address</label>
+          <input id="email" type="email" inputmode="email" x-model="f.email" autocomplete="email" autocapitalize="none" spellcheck="false" class="field" placeholder="you@example.com" :aria-invalid="!!errors.email" aria-describedby="e-email">
+          <p id="e-email" class="err" x-show="errors.email" x-text="errors.email"></p>
+        </div>
+
+        <div x-show="mode!=='reset'">
+          <div class="flex items-baseline justify-between">
+            <label for="password" class="label" x-text="mode==='update' ? 'New password' : 'Password'"></label>
+            <button type="button" x-show="mode==='login'" @click="setMode('reset')" class="mb-1.5 font-display text-sm font-semibold uppercase tracking-[0.12em] text-accent underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">Forgot password?</button>
+          </div>
+          <div class="relative">
+            <input id="password" :type="showPw ? 'text' : 'password'" x-model="f.password" :autocomplete="mode==='login' ? 'current-password' : 'new-password'" class="field pr-20" :aria-invalid="!!errors.password" aria-describedby="e-password">
+            <button type="button" @click="showPw=!showPw" :aria-pressed="showPw" class="absolute right-1 top-1/2 min-h-10 -translate-y-1/2 px-3 font-display text-sm font-semibold uppercase tracking-[0.12em] text-muted hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" x-text="showPw ? 'Hide' : 'Show'"></button>
+          </div>
+          <p id="e-password" class="err" x-show="errors.password" x-text="errors.password"></p>
+
+          <div x-show="(mode==='signup'||mode==='update') && f.password" x-cloak class="mt-3">
+            <div class="flex gap-1.5" aria-hidden="true">
+              <template x-for="i in 4" :key="i">
+                <span class="h-1.5 flex-1 transition-colors" :class="i<=strength ? ['bg-red-600','bg-amber-500','bg-lime-600','bg-green-600'][strength-1] : 'bg-line/30'"></span>
+              </template>
+            </div>
+            <p class="mt-1.5 text-base text-muted">Strength: <span class="font-semibold text-body" x-text="['Too short','Weak','Fair','Good','Strong'][strength]"></span>. Use 8+ characters with letters, numbers and symbols.</p>
+          </div>
+        </div>
+
+        <template x-if="mode==='signup'||mode==='update'">
+          <div>
+            <label for="confirm" class="label">Confirm password</label>
+            <input id="confirm" :type="showPw ? 'text' : 'password'" x-model="f.confirm" autocomplete="new-password" class="field" :aria-invalid="!!errors.confirm" aria-describedby="e-confirm">
+            <p id="e-confirm" class="err" x-show="errors.confirm" x-text="errors.confirm"></p>
+          </div>
+        </template>
+
+        <button type="submit" :disabled="loading" class="btn-shimmer relative flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden bg-amber-500 px-4 font-display text-sm font-bold uppercase tracking-[0.2em] text-ink transition-all hover:-translate-y-0.5 hover:bg-amber-600 hover:shadow-[0_8px_30px_rgba(245,158,11,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none">
+          <svg x-show="loading" x-cloak class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".3" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <span x-text="loading ? copy[mode][3] : copy[mode][2]"></span>
+        </button>
+
+        <p class="text-center text-sm text-muted" x-show="mode==='reset'">
+          <button type="button" @click="setMode('login')" class="font-display text-sm font-semibold uppercase tracking-[0.12em] text-accent underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">Back to sign in</button>
+        </p>
+      </form>
+
+      <p class="mt-10 text-center font-display text-sm tracking-wide text-muted">&copy; <span x-text="new Date().getFullYear()"></span> Doilwell Institute</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  // ---- Configuration ----
+  const SUPABASE_URL = 'https://clbxzcxgxxaaowvdkyus.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_cbWxLMFmFB44fh5YREfXdA_KsO7x_oq'; // publishable key: safe in the browser
+  const DASHBOARD_URL = 'homepage.html';                                  // where users land after signing in
+  let sb; // Supabase client (kept outside Alpine so it isn't proxied)
+
+  function auth() {
+    return {
+      mode: 'login', loading: false, showPw: false, msg: null, errors: {}, who: null,
+      f: { name: '', email: '', password: '', confirm: '' },
+      copy: {
+        login:  ['Welcome back', 'Sign in to your Doilwell Institute account.', 'Sign in', 'Signing in…'],
+        signup: ['Create your account', 'It takes less than a minute.', 'Create account', 'Creating account…'],
+        reset:  ['Reset your password', 'Enter your email and we will send you a reset link.', 'Send reset link', 'Sending…'],
+        update: ['Choose a new password', 'Pick a password you have not used before.', 'Save new password', 'Saving…']
+      },
+
+      async init() {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const recovering = location.hash.includes('type=recovery');
+        const fromEmailLink = !recovering && /access_token=|type=signup/.test(location.hash); // user just clicked the confirmation link
+        sb.auth.onAuthStateChange((event) => { if (event === 'PASSWORD_RECOVERY') this.setMode('update'); });
+        if (recovering) return this.setMode('update');
+        if (new URLSearchParams(location.search).get('signed_out')) {
+          history.replaceState(null, '', location.pathname);
+          try { await sb.auth.signOut(); } catch (e) {}
+          try { await navigator.credentials.preventSilentAccess(); } catch (e) {}
+          return this.note('ok', 'You have been signed out.');
+        }
+        const { data } = await sb.auth.getSession();
+        if (!data.session) return;
+        if (fromEmailLink) return location.replace(DASHBOARD_URL);
+        // Existing session (for example in Chrome): never sign in silently, let the user choose
+        const u = data.session.user;
+        this.who = { name: (u.user_metadata && u.user_metadata.full_name) || (u.email || 'Account').split('@')[0], email: u.email };
+      },
+
+      async signOut() {
+        this.loading = true;
+        try { await sb.auth.signOut(); } catch (e) {}
+        try { await navigator.credentials.preventSilentAccess(); } catch (e) {}
+        this.loading = false; this.who = null; this.setMode('login');
+        this.note('ok', 'You have been signed out.');
+      },
+
+      setMode(m) {
+        this.mode = m; this.msg = null; this.errors = {}; this.showPw = false;
+        this.f.password = ''; this.f.confirm = '';
+      },
+
+      get strength() {
+        const p = this.f.password; if (!p) return 0;
+        let s = 0;
+        if (p.length >= 8) s++;
+        if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+        if (/\d/.test(p)) s++;
+        if (/[^A-Za-z0-9]/.test(p)) s++;
+        return p.length < 8 ? Math.min(s, 1) : s;
+      },
+
+      validate() {
+        const e = {}, f = this.f, m = this.mode;
+        if (m !== 'update' && !/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = 'Enter a valid email address.';
+        if (m === 'signup' && f.name.trim().length < 2) e.name = 'Enter your full name.';
+        if (m === 'login' && !f.password) e.password = 'Enter your password.';
+        if ((m === 'signup' || m === 'update') && f.password.length < 8) e.password = 'Use at least 8 characters.';
+        if ((m === 'signup' || m === 'update') && f.confirm !== f.password) e.confirm = "Passwords don't match.";
+        this.errors = e;
+        if (Object.keys(e).length) this.$nextTick(() => this.$root.querySelector('[aria-invalid="true"]')?.focus());
+        return !Object.keys(e).length;
+      },
+
+      note(type, text) { this.msg = { type, text }; },
+
+      friendly(err) {
+        const t = (err && err.message) || '';
+        if (/invalid login/i.test(t)) return 'Email or password is incorrect.';
+        if (/not confirmed/i.test(t)) return 'Confirm your email first. Check your inbox for the link.';
+        if (/already registered|already exists/i.test(t)) return 'An account with this email already exists. Sign in instead.';
+        if (/rate limit|too many|security purposes/i.test(t)) return 'Too many attempts. Wait a minute and try again.';
+        if (/fetch|network/i.test(t)) return "Can't reach Doilwell Institute. Check your connection and try again.";
+        return t || 'Something went wrong. Try again.';
+      },
+
+      async submit() {
+        this.msg = null;
+        if (!this.validate()) return;
+        this.loading = true;
+        const email = this.f.email.trim(), password = this.f.password;
+        const back = location.href.split('#')[0].split('?')[0];
+        try {
+          if (this.mode === 'login') {
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            this.note('ok', 'Signed in. Redirecting…');
+            location.href = DASHBOARD_URL;
+          } else if (this.mode === 'signup') {
+            const { data, error } = await sb.auth.signUp({
+              email, password,
+              options: { data: { full_name: this.f.name.trim() }, emailRedirectTo: back }
+            });
+            if (error) throw error;
+            if (data.user && data.user.identities && data.user.identities.length === 0) throw { message: 'already registered' };
+            if (data.session) { location.href = DASHBOARD_URL; return; }
+            this.note('ok', 'Check ' + email + ' for a confirmation link to finish creating your account.');
+          } else if (this.mode === 'reset') {
+            const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: back });
+            if (error) throw error;
+            this.note('ok', 'If an account exists for ' + email + ', a reset link is on its way.');
+          } else {
+            const { error } = await sb.auth.updateUser({ password });
+            if (error) throw error;
+            this.note('ok', 'Password updated. Redirecting…');
+            location.href = DASHBOARD_URL;
+          }
+        } catch (err) {
+          this.note('err', this.friendly(err));
+        } finally {
+          this.loading = false;
+        }
+      }
+    };
+  }
+</script>
+</body>
+</html>

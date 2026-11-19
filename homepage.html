@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app()" x-init="init()" :class="{ 'dark': darkMode }">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doilwell Institute — Center For Applied Engineering and Technology — Oil & Gas Technical Training</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            oil: { 950: '#0a0a08', 900: '#111109', 800: '#1a1a10', 700: '#252514' },
+          },
+          fontFamily: {
+            display: ['Barlow Condensed', 'sans-serif'],
+            body: ['Crimson Pro', 'Georgia', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --amber: #f59e0b;
+      --amber-dark: #d97706;
+      --rust: #c2410c;
+      --dark: #0a0a08;
+      --light-bg: #f5f0e8;
+      --light-surface: #faf7f2;
+      --light-text: #1a1710;
+      --light-muted: #6b6047;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── LIGHT MODE BASE ── */
+    body {
+      background: var(--light-bg);
+      color: var(--light-text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      overflow-x: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* ── DARK MODE BASE ── */
+    .dark body { background: #0a0a08; color: #e8e4d8; }
+
+    /* ── TRANSITIONS ── */
+    nav, section, footer, .card-surface, .testimonial-card, .stats-bar {
+      transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* ══════════════════ NAV ══════════════════ */
+    .nav-glass {
+      background: rgba(245,240,232,0.94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,158,11,0.2);
+    }
+    .dark .nav-glass {
+      background: rgba(10,10,8,0.92);
+      border-bottom: 1px solid rgba(245,158,11,0.15);
+    }
+    .nav-link {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #8a7a5a;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .dark .nav-link { color: #a8a090; }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1px;
+      background: var(--amber);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--amber); }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+
+    /* Theme toggle button */
+    .theme-toggle {
+      width: 44px; height: 24px;
+      background: rgba(245,158,11,0.2);
+      border: 1px solid rgba(245,158,11,0.35);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .dark .theme-toggle { background: rgba(245,158,11,0.15); }
+    .theme-toggle-knob {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      background: var(--amber);
+      border-radius: 50%;
+      transition: transform 0.3s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dark .theme-toggle-knob { transform: translateX(20px); }
+
+    /* ══════════════════ HERO ══════════════════ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('homepage.jpeg');
+      background-size: cover;
+      background-position: center 35%;
+      transform: scale(1.05);
+      animation: heroZoom 22s ease-in-out infinite alternate;
+    }
+    @keyframes heroZoom { from { transform: scale(1.05); } to { transform: scale(1.13); } }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(10,10,8,0.88) 0%, rgba(10,10,8,0.52) 55%, rgba(194,65,12,0.22) 100%);
+    }
+    .hero-grain {
+      position: absolute; inset: 0;
+      opacity: 0.28;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+    .hero-content { position: relative; z-index: 2; }
+
+    /* hero text always white on photo */
+    .hero-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; letter-spacing: 0.35em; font-size: 0.75rem;
+      color: var(--amber); text-transform: uppercase;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 40px; height: 1px; background: var(--amber);
+    }
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: clamp(3.5rem, 9vw, 8rem);
+      line-height: 0.9; text-transform: uppercase; color: #f0ece0; letter-spacing: -0.01em;
+    }
+    .hero-title span { color: var(--amber); }
+    .hero-sub {
+      font-family: 'Crimson Pro', serif; font-size: clamp(1.1rem, 2vw, 1.4rem);
+      color: #c8c0a8; font-style: italic; max-width: 520px;
+    }
+
+    /* ══════════════════ BUTTONS ══════════════════ */
+    .btn-primary {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      letter-spacing: 0.2em; font-size: 0.85rem; text-transform: uppercase;
+      background: var(--amber); color: #0a0a08;
+      padding: 14px 36px; border: none; cursor: pointer;
+      transition: all 0.3s; position: relative; overflow: hidden;
+      display: inline-block; text-decoration: none;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { background: var(--amber-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,158,11,0.3); }
+
+    .btn-outline {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      letter-spacing: 0.2em; font-size: 0.85rem; text-transform: uppercase;
+      background: transparent; padding: 13px 36px;
+      border: 1px solid rgba(26,23,16,0.3); cursor: pointer;
+      transition: all 0.3s; display: inline-block; text-decoration: none;
+      color: var(--light-text);
+    }
+    .dark .btn-outline { color: #e8e4d8; border-color: rgba(232,228,216,0.3); }
+    .btn-outline:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ══════════════════ STATS BAR ══════════════════ */
+    .stats-bar {
+      background: linear-gradient(90deg, #f0ebe0 0%, #f7f2e6 50%, #f0ebe0 100%);
+      border-top: 1px solid rgba(245,158,11,0.2);
+      border-bottom: 1px solid rgba(245,158,11,0.2);
+    }
+    .dark .stats-bar {
+      background: linear-gradient(90deg, #111109 0%, #1a1508 50%, #111109 100%);
+    }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+      font-size: 2.8rem; color: var(--amber); line-height: 1;
+    }
+    .stat-label {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 400;
+      letter-spacing: 0.12em; font-size: 0.72rem; text-transform: uppercase;
+      color: #8a7a5a;
+    }
+    .dark .stat-label { color: #888070; }
+
+    /* ══════════════════ SECTION LABELS ══════════════════ */
+    .section-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      letter-spacing: 0.35em; font-size: 0.72rem; color: var(--amber); text-transform: uppercase;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+      font-size: clamp(2.5rem, 5vw, 4rem); text-transform: uppercase;
+      line-height: 0.95; color: var(--light-text);
+    }
+    .dark .section-title { color: #f0ece0; }
+    .section-title span { color: var(--amber); }
+    .gold-divider { width: 60px; height: 2px; background: linear-gradient(90deg, var(--amber), transparent); }
+
+    /* ══════════════════ CARDS ══════════════════ */
+    .card-surface {
+      background: var(--light-surface);
+      border: 1px solid rgba(245,158,11,0.12);
+      transition: all 0.4s; overflow: hidden; position: relative;
+    }
+    .dark .card-surface { background: #111109; border-color: rgba(245,158,11,0.08); }
+    .card-surface::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 0; background: var(--amber); transition: height 0.4s;
+    }
+    .card-surface:hover::before { height: 100%; }
+    .card-surface:hover {
+      border-color: rgba(245,158,11,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .dark .card-surface:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+
+    .card-img-wrap { position: relative; overflow: hidden; }
+    .card-img-wrap img {
+      width: 100%; height: 240px; object-fit: cover;
+      filter: saturate(0.7) contrast(1.05);
+      transition: all 0.6s;
+    }
+    .card-surface:hover .card-img-wrap img { filter: saturate(1) contrast(1.02); transform: scale(1.05); }
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,8,0.88) 0%, transparent 60%);
+    }
+
+    /* ══════════════════ TESTIMONIALS ══════════════════ */
+    .testimonial-card {
+      background: var(--light-surface);
+      border: 1px solid rgba(245,158,11,0.12);
+      padding: 36px; position: relative; transition: all 0.4s;
+    }
+    .dark .testimonial-card { background: #111109; border-color: rgba(245,158,11,0.1); }
+    .testimonial-card::before {
+      content: '\201C'; font-family: 'Crimson Pro', serif; font-size: 6rem;
+      color: rgba(245,158,11,0.1); position: absolute; top: 10px; left: 20px; line-height: 1;
+    }
+    .testimonial-card:hover { border-color: rgba(245,158,11,0.35); transform: translateY(-4px); }
+
+    /* ══════════════════ ABOUT IMAGE ══════════════════ */
+    .about-img { position: relative; overflow: hidden; }
+    .about-img::after {
+      content: ''; position: absolute; bottom: -20px; right: -20px;
+      width: 120px; height: 120px; border: 3px solid var(--amber); z-index: -1;
+    }
+
+    /* ══════════════════ FOOTER ══════════════════ */
+    .footer-surface {
+      background: #f0ebe0;
+      border-top: 1px solid rgba(245,158,11,0.18);
+    }
+    .dark .footer-surface { background: #060604; border-top-color: rgba(245,158,11,0.15); }
+
+    /* ══════════════════ FLOATING BTNS ══════════════════ */
+    .float-wa {
+      position: fixed; bottom: 36px; right: 36px;
+      width: 56px; height: 56px; background: #25d366; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; z-index: 999; box-shadow: 0 4px 24px rgba(37,211,102,0.35);
+      transition: transform 0.3s; text-decoration: none;
+    }
+    .float-wa:hover { transform: scale(1.12); }
+    .float-phone, .float-email {
+      position: fixed; left: 24px; width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; z-index: 999; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25); transition: transform 0.3s;
+    }
+    .float-phone { bottom: 100px; background: #c2410c; }
+    .float-email { bottom: 44px; background: #1d4ed8; }
+    .float-phone:hover, .float-email:hover { transform: scale(1.12); }
+
+    /* ══════════════════ MOBILE NAV ══════════════════ */
+    .mobile-menu {
+      background: rgba(245,240,232,0.98); backdrop-filter: blur(20px);
+    }
+    .dark .mobile-menu { background: rgba(10,10,8,0.98); }
+
+    /* ══════════════════ REVEAL ANIMATIONS ══════════════════ */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    .revealed { opacity: 1 !important; transform: translateY(0) !important; }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    .revealed-x { opacity: 1 !important; transform: translateX(0) !important; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-fade-up { opacity: 0; animation: fadeUp 0.9s ease forwards; }
+    @keyframes shimmer { 0% { left: -100%; } 100% { left: 200%; } }
+
+    /* ══════════════════ DIAGONAL CLIPS ══════════════════ */
+    .diagonal-clip { clip-path: polygon(0 0, 100% 4%, 100% 100%, 0 96%); }
+    .diagonal-clip-sm { clip-path: polygon(0 2%, 100% 0, 100% 98%, 0 100%); }
+
+    /* ══════════════════ TABLE ══════════════════ */
+    .schedule-table th {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      letter-spacing: 0.12em; font-size: 0.78rem; text-transform: uppercase;
+      background: #ede8db; color: var(--amber); padding: 14px 20px;
+      border-bottom: 1px solid rgba(245,158,11,0.2);
+    }
+    .dark .schedule-table th { background: #1a1508; }
+    .schedule-table td {
+      font-family: 'Crimson Pro', serif; font-size: 1rem; padding: 12px 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.05); color: #4a4030;
+    }
+    .dark .schedule-table td { border-bottom-color: rgba(255,255,255,0.04); color: #c8c0a8; }
+    .schedule-table tr:hover td { background: rgba(245,158,11,0.05); }
+
+    /* ══════════════════ SCROLL INDICATOR ══════════════════ */
+    @keyframes scrollBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+    .scroll-cue { animation: scrollBounce 2s ease-in-out infinite; }
+
+    /* ══════════════════ SECTION BACKGROUNDS ══════════════════ */
+    .sect-light { background: var(--light-bg); }
+    .sect-light-alt { background: var(--light-surface); }
+    .dark .sect-light { background: #0a0a08; }
+    .dark .sect-light-alt { background: #0e0e0b; }
+
+    .sect-warm { background: linear-gradient(135deg, #ede8da 0%, #f5efe0 100%); }
+    .dark .sect-warm { background: linear-gradient(135deg, #0f0f0a 0%, #1a1508 100%); }
+
+    /* ══════════════════ INLINE TEXT COLORS ══════════════════ */
+    .text-body-muted { color: #5a5040; }
+    .dark .text-body-muted { color: #a8a090; }
+    .text-body-main { color: #2e2818; }
+    .dark .text-body-main { color: #e8e4d8; }
+    .text-body-mid { color: #3d3424; }
+    .dark .text-body-mid { color: #c8c0a8; }
+    .text-subtext { color: #7a6e56; }
+    .dark .text-subtext { color: #888070; }
+
+    .border-subtle { border-color: rgba(0,0,0,0.08); }
+    .dark .border-subtle { border-color: rgba(255,255,255,0.06); }
+    .border-card { border-color: rgba(0,0,0,0.1); }
+    .dark .border-card { border-color: rgba(255,255,255,0.07); }
+
+    /* Feature grid boxes */
+    .feat-box {
+      border: 1px solid rgba(0,0,0,0.1); padding: 20px;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .dark .feat-box { border-color: rgba(255,255,255,0.07); }
+    .feat-box:hover { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.03); }
+
+    /* Footer badge */
+    .floating-badge {
+      background: rgba(245,240,232,0.95); border: 1px solid rgba(245,158,11,0.25);
+    }
+    .dark .floating-badge { background: rgba(10,10,8,0.9); }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script defer src="doilwell-auth.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
+  <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="homepage.html" class="flex flex-col leading-none">
+        <span class="font-display font-900 text-base sm:text-xl text-amber-500 tracking-tight uppercase leading-none">Doilwell Institute</span>
+        <span class="font-display font-400 text-[0.6rem] sm:text-xs text-subtext uppercase leading-tight" style="letter-spacing:0.15em">Center For Applied Engineering and Technology</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <ul class="hidden lg:flex items-center gap-6">
+        <li><a href="homepage.html" class="nav-link active">Home</a></li>
+        <li><a href="cert.html" class="nav-link">Certificates</a></li>
+        <li><a href="courses.html" class="nav-link">Courses</a></li>
+        <li><a href="homepage.html#about" class="nav-link">About Us</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
+
+        <!-- Theme toggle -->
+        <li>
+          <button @click="toggleDark()" class="theme-toggle" :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+            <div class="theme-toggle-knob">
+              <!-- Sun icon (light mode) -->
+              <svg x-show="!darkMode" class="w-3 h-3 text-amber-900" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+              </svg>
+              <!-- Moon icon (dark mode) -->
+              <svg x-show="darkMode" class="w-3 h-3 text-amber-100" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+              </svg>
+            </div>
+          </button>
+        </li>
+
+        <li><a href="courses.html" class="btn-primary text-sm py-2 px-5">Find Training</a></li>
+      </ul>
+
+      <!-- Mobile right controls -->
+      <div class="lg:hidden flex items-center gap-3">
+        <button @click="toggleDark()" class="theme-toggle" :aria-label="darkMode ? 'Light mode' : 'Dark mode'">
+          <div class="theme-toggle-knob">
+            <svg x-show="!darkMode" class="w-3 h-3 text-amber-900" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+            <svg x-show="darkMode" class="w-3 h-3 text-amber-100" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+          </div>
+        </button>
+        <button @click="menuOpen = !menuOpen" class="text-amber-500 focus:outline-none" aria-label="Toggle menu">
+          <svg x-show="!menuOpen" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg x-show="menuOpen" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div x-show="menuOpen"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-4"
+         class="mobile-menu lg:hidden mt-4 py-6 px-6 border-t border-subtle">
+      <ul class="flex flex-col gap-5">
+        <li><a href="homepage.html" class="nav-link text-base" @click="menuOpen=false">Home</a></li>
+        <li><a href="cert.html" class="nav-link text-base" @click="menuOpen=false">Certificates</a></li>
+        <li><a href="courses.html" class="nav-link text-base" @click="menuOpen=false">Courses</a></li>
+        <li><a href="homepage.html#about" class="nav-link text-base" @click="menuOpen=false">About Us</a></li>
+        <li><a href="contact.html" class="nav-link text-base" @click="menuOpen=false">Contact</a></li>
+        <li class="pt-2"><a href="courses.html" class="btn-primary block text-center" @click="menuOpen=false">Find Training</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-grain"></div>
+
+    <!-- Animated light beams -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" style="z-index:1">
+      <div style="position:absolute;top:-20%;left:10%;width:1px;height:140%;background:linear-gradient(180deg,transparent,rgba(245,158,11,0.08),transparent);transform:rotate(15deg);animation:beamMove 8s ease-in-out infinite alternate;"></div>
+      <div style="position:absolute;top:-20%;left:30%;width:1px;height:140%;background:linear-gradient(180deg,transparent,rgba(245,158,11,0.05),transparent);transform:rotate(10deg);animation:beamMove 12s ease-in-out infinite alternate-reverse;"></div>
+    </div>
+    <style>@keyframes beamMove{from{transform:rotate(15deg) translateX(0)}to{transform:rotate(15deg) translateX(60px)}}</style>
+
+    <div class="hero-content max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
+      <div class="hero-eyebrow mb-6 anim-fade-up" style="animation-delay:0.1s;animation-fill-mode:both">Oil and Gas — Technical Training Courses</div>
+      <h1 class="hero-title mb-6 anim-fade-up" style="animation-delay:0.25s;animation-fill-mode:both">
+        Global<br /><span>Energy</span><br />Training
+      </h1>
+      <p class="hero-sub mb-10 anim-fade-up" style="animation-delay:0.4s;animation-fill-mode:both">
+        Advance Your Oil and Gas Career with Industry-Focused Training for Long-Term Success
+      </p>
+      <div class="flex flex-wrap gap-4 anim-fade-up" style="animation-delay:0.55s;animation-fill-mode:both">
+        <a href="courses.html" class="btn-primary">Find Training</a>
+        <a href="cert.html" class="btn-outline" style="color:#e8e4d8;border-color:rgba(232,228,216,0.35)">View Certificates</a>
+      </div>
+      <p class="mt-8 text-xs font-display font-600 tracking-widest text-stone-400 uppercase anim-fade-up" style="animation-delay:0.7s;animation-fill-mode:both">Industry Driven. Industry Approved.</p>
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60 scroll-cue" style="z-index:2">
+      <span class="font-display text-xs tracking-widest text-stone-400 uppercase">Scroll</span>
+      <div class="w-px h-10 bg-gradient-to-b from-amber-400 to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ STATS BAR ═══════════════════════════════════ -->
+  <section class="stats-bar py-10">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x divide-amber-200/40 dark:divide-stone-800">
+        <div class="flex flex-col items-center md:px-10 reveal" data-delay="0">
+          <span class="stat-num" x-text="counts.students + '+'">0</span>
+          <span class="stat-label mt-2">Trained Professionals</span>
+        </div>
+        <div class="flex flex-col items-center md:px-10 reveal" data-delay="100">
+          <span class="stat-num" x-text="counts.courses + '+'">0</span>
+          <span class="stat-label mt-2">Specialist Courses</span>
+        </div>
+        <div class="flex flex-col items-center md:px-10 reveal" data-delay="200">
+          <span class="stat-num" x-text="counts.certs + '+'">0</span>
+          <span class="stat-label mt-2">Certifications Awarded</span>
+        </div>
+        <div class="flex flex-col items-center md:px-10 reveal" data-delay="300">
+          <span class="stat-num" x-text="counts.years + '+'">0</span>
+          <span class="stat-label mt-2">Years in Industry</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ QUICK LINKS ═══════════════════════════════════ -->
+  <section class="py-24 px-6 sect-light">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Courses card -->
+        <a href="courses.html" class="card-surface group block">
+          <div class="card-img-wrap">
+            <img src="indprof.jpg" alt="Oil Courses" loading="lazy" />
+            <div class="card-overlay"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <span class="section-eyebrow block mb-2">Training Programs</span>
+              <h3 class="font-display font-800 text-2xl text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">View Our Offered Courses</h3>
+            </div>
+          </div>
+          <div class="p-6 flex items-center justify-between">
+            <span class="font-body text-lg italic text-body-muted">Drilling · Operations · Engineering · Safety</span>
+            <svg class="w-5 h-5 text-amber-500 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </div>
+        </a>
+        <!-- Certs card -->
+        <a href="cert.html" class="card-surface group block">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=900&q=85" alt="Certifications" loading="lazy" />
+            <div class="card-overlay"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <span class="section-eyebrow block mb-2">Accreditations</span>
+              <h3 class="font-display font-800 text-2xl text-white uppercase tracking-wide group-hover:text-amber-400 transition-colors">View Our Industry Certifications</h3>
+            </div>
+          </div>
+          <div class="p-6 flex items-center justify-between">
+            <span class="font-body text-lg italic text-body-muted">Globally Recognised · Industry Endorsed</span>
+            <svg class="w-5 h-5 text-amber-500 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ ABOUT TRAINING ═══════════════════════════════════ -->
+  <section class="diagonal-clip-sm py-32 px-6 sect-warm">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div class="reveal-left">
+          <span class="section-eyebrow block mb-4">Our Training</span>
+          <h2 class="section-title mb-6">Oil and Gas<br /><span>Training</span><br />Courses</h2>
+          <div class="gold-divider mb-8"></div>
+          <div class="space-y-5 font-body text-lg leading-relaxed text-body-mid">
+            <p>Oil and Gas training courses offered by <strong class="text-amber-600 dark:text-amber-400">DOILWELL</strong> provide participants with advanced practical knowledge on various aspects of the industry, including exploration, drilling, production, refining, and transportation. They also cover safety and environmental regulations, ensuring individuals have the necessary skills to operate safely and responsibly.</p>
+            <p>Our portfolio of Oil &amp; Gas training courses is designed and tailored to help trainees fully develop their skills as effective and knowledgeable professionals in the field of the oil and gas industry, including Drilling and Well Engineering, Well Head Operation and Testing, and other essential operations.</p>
+            <p>Completing Oil and Gas Training Courses offered by Doilwell not only strengthens technical proficiency but also enhances career opportunities in the competitive energy industry. <strong class="text-amber-600 dark:text-amber-400">Enroll today</strong> to elevate your impact in the global oil and gas sector.</p>
+          </div>
+          <a href="courses.html" class="btn-primary inline-block mt-8">Explore All Courses</a>
+        </div>
+        <div class="reveal-right relative">
+          <div class="about-img">
+            <img src="tech.jpg" alt="Oil Training" class="w-full h-[520px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" />
+            <div class="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-amber-900/10"></div>
+          </div>
+          <div class="absolute -bottom-6 -right-6 w-40 h-40 border-2 border-amber-400/30 pointer-events-none"></div>
+          <div class="absolute -top-6 -left-6 w-20 h-20 border border-amber-400/20 pointer-events-none"></div>
+          <!-- Badge -->
+          <div class="absolute top-8 -left-6 bg-amber-500 text-white px-5 py-3">
+            <span class="font-display font-900 text-3xl leading-none block">10+</span>
+            <p class="font-display font-600 text-xs tracking-widest uppercase leading-none mt-1">Years<br/>Experience</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ ABOUT US ═══════════════════════════════════ -->
+  <section id="about" class="py-28 px-6 sect-light">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div class="reveal relative order-2 md:order-1">
+          <img src="prov.png" alt="About Doilwell Institute" class="w-full h-[480px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/30"></div>
+          <!-- Floating stat -->
+          <div class="absolute bottom-8 right-8 floating-badge p-6 backdrop-blur-sm">
+            <p class="font-display font-900 text-4xl text-amber-500">Nigeria's</p>
+            <p class="font-display font-600 text-sm text-body-mid tracking-widest uppercase mt-1">Leading Technical<br />Training Provider</p>
+          </div>
+        </div>
+        <div class="order-1 md:order-2 reveal">
+          <span class="section-eyebrow block mb-4">Who We Are</span>
+          <h2 class="section-title mb-6">About <span>Us</span></h2>
+          <div class="gold-divider mb-8"></div>
+          <p class="font-body text-lg leading-relaxed mb-5 text-body-mid">Doilwell Global Services Limited is one of the leading and fastest growing indigenous companies in the Nigerian oil and gas industry. Doilwell is into large range of services, which includes solving all the surface Wellhead and X-mass Tree challenges with best practices, quality service and with zero tolerance to safety violations. We design and manufacture Wellhead and Xmas tree, Well Completion Services, Rigless Wellhead Annulus Communication Leak Repairs etc. Our portfolio has grown to include several Well Intervention, such as Slicklines, E-lines, and Coil tubing services.</p>
+          <p class="font-body text-lg leading-relaxed mb-5 text-body-mid">Our emphasis on meeting the strict requirements of industry standards and client specifications has enabled us to consistently maintain the quality as per international standards.</p>
+          <p class="font-body text-lg leading-relaxed mb-5 text-body-mid">Doilwell Global is committed to internationally recognized standards (such as ISO: QHSE,), in the execution of all its projects and adopted Project Management services in conformity with the agreed upon standards.</p>
+          <p class="font-body text-lg leading-relaxed mb-5 text-body-mid">Doilwell Training Institute offers a broad technical training framework covering</p>
+          <ul class="space-y-2 mb-6"><li class="flex gap-3 font-body text-lg text-body-mid"><span class="text-amber-500 font-bold">→</span><span>Wellhead installation, maintenance and operation</span></li><li class="flex gap-3 font-body text-lg text-body-mid"><span class="text-amber-500 font-bold">→</span><span>Well Test and Completion</span></li><li class="flex gap-3 font-body text-lg text-body-mid"><span class="text-amber-500 font-bold">→</span><span>Well Intervention - Coiled tubing operations</span></li><li class="flex gap-3 font-body text-lg text-body-mid"><span class="text-amber-500 font-bold">→</span><span>Production and Reservoir Management</span></li><li class="flex gap-3 font-body text-lg text-body-mid"><span class="text-amber-500 font-bold">→</span><span>Software training for oil and gas production analysis</span></li></ul>
+          <div class="grid grid-cols-2 gap-4 mt-10">
+            <div class="feat-box">
+              <svg class="w-8 h-8 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+              <h4 class="font-display font-700 text-sm tracking-wide uppercase text-body-main">Industry Approved</h4>
+              <p class="font-body text-sm mt-1 text-body-muted">Globally recognised certifications</p>
+            </div>
+            <div class="feat-box">
+              <svg class="w-8 h-8 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <h4 class="font-display font-700 text-sm tracking-wide uppercase text-body-main">Expert Instructors</h4>
+              <p class="font-body text-sm mt-1 text-body-muted">Seasoned oil &amp; gas professionals</p>
+            </div>
+            <div class="feat-box">
+              <svg class="w-8 h-8 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <h4 class="font-display font-700 text-sm tracking-wide uppercase text-body-main">Global Reach</h4>
+              <p class="font-body text-sm mt-1 text-body-muted">Venues across 3 continents</p>
+            </div>
+            <div class="feat-box">
+              <svg class="w-8 h-8 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              <h4 class="font-display font-700 text-sm tracking-wide uppercase text-body-main">Structured Programs</h4>
+              <p class="font-body text-sm mt-1 text-body-muted">6–10 week focused courses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ TESTIMONIALS ═══════════════════════════════════ -->
+  <section class="diagonal-clip py-36 px-6 sect-light-alt">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16 reveal">
+        <span class="section-eyebrow block mb-4">Client Feedback</span>
+        <h2 class="section-title">What Our <span>Clients</span> Say</h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="testimonial-card reveal" data-delay="0">
+          <p class="font-body text-xl leading-relaxed mb-6 relative z-10 text-body-main">"Amazing knowledge of the instructor for sharing such Modelling expertise. Formulas for statistical are very useful for me to apply at work."</p>
+          <div class="border-t border-subtle pt-5">
+            <p class="font-display font-700 text-amber-500 uppercase tracking-wide text-sm">Carlos Jr Refugio</p>
+            <p class="font-body text-sm italic mt-1 text-subtext">Course — Financial Modelling in the Oil &amp; Gas Industry</p>
+          </div>
+        </div>
+        <div class="testimonial-card reveal" data-delay="150">
+          <p class="font-body text-xl leading-relaxed mb-6 relative z-10 text-body-main">"An exciting course. Learned the application of Excel in Financial Modelling."</p>
+          <div class="border-t border-subtle pt-5">
+            <p class="font-display font-700 text-amber-500 uppercase tracking-wide text-sm">Hafsatu Abdu-Gusau</p>
+            <p class="font-body text-sm italic mt-1 text-subtext">Course — Financial Modelling in the Oil &amp; Gas Industry</p>
+          </div>
+        </div>
+        <div class="testimonial-card reveal" data-delay="300">
+          <p class="font-body text-xl leading-relaxed mb-6 relative z-10 text-body-main">"Fantastic delivery of the course!"</p>
+          <div class="border-t border-subtle pt-5">
+            <p class="font-display font-700 text-amber-500 uppercase tracking-wide text-sm">Kalio Japer Tamuno</p>
+            <p class="font-body text-sm italic mt-1 text-subtext">Course — Oil &amp; Gas and Petrochemical Accounting &amp; Performance Measurement</p>
+          </div>
+        </div>
+        <div class="testimonial-card reveal" data-delay="450">
+          <p class="font-body text-xl leading-relaxed mb-6 relative z-10 text-body-main">"A great instructor for this course. Let's call it Accounting made easy."</p>
+          <div class="border-t border-subtle pt-5">
+            <p class="font-display font-700 text-amber-500 uppercase tracking-wide text-sm">Charles D. Williams</p>
+            <p class="font-body text-sm italic mt-1 text-subtext">Course — Oil &amp; Gas and Petrochemical Accounting &amp; Performance Measurement</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ CTA BAND ═══════════════════════════════════ -->
+  <section class="relative py-24 px-6 overflow-hidden">
+    <img src="career.jpg" class="absolute inset-0 w-full h-full object-cover" style="filter:saturate(0.3) brightness(0.28)" alt="" loading="lazy" />
+    <div class="absolute inset-0" style="background:rgba(194,65,12,0.07)"></div>
+    <div class="relative z-10 max-w-4xl mx-auto text-center">
+      <h2 class="font-display font-900 text-5xl md:text-7xl text-white uppercase leading-none mb-6 reveal">Ready to <span class="text-amber-400">Advance</span> Your Career?</h2>
+      <p class="font-body text-xl text-stone-300 italic mb-10 reveal" data-delay="150">Enroll today to gain industry-leading training and elevate your impact in the global oil and gas sector.</p>
+      <div class="flex flex-wrap gap-4 justify-center reveal" data-delay="300">
+        <a href="courses.html" class="btn-primary">Browse Courses</a>
+        <a href="contact.html" class="btn-outline" style="color:#e8e4d8;border-color:rgba(232,228,216,0.35)">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ FOOTER ═══════════════════════════════════ -->
+  <footer class="footer-surface py-16 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-4 gap-10 pb-12 border-b border-subtle">
+        <div class="md:col-span-2">
+          <div class="mb-6">
+            <span class="font-display font-900 text-2xl text-amber-500 uppercase tracking-tight block mb-1">Doilwell Institute</span>
+          <span class="font-display font-400 text-xs text-subtext uppercase tracking-widest block mb-2">Center For Applied Engineering and Technology</span>
+          </div>
+          <p class="font-body text-lg leading-relaxed mb-6 text-body-muted">Head Office: Doilwell Training and Service Limited, Plot 105 Trade Zone Road, Ibeju-lekki, Lagos, Nigeria.</p>
+          <div class="space-y-2">
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Tel:</span>+234-7026-364-463</p>
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Email:</span><a href="mailto:info@doilwellinstitute.com" class="hover:text-amber-500 transition-colors">info@doilwellinstitute.com</a></p>
+            <p class="font-body text-body-muted"><span class="text-amber-500 font-display font-700 text-sm tracking-wide uppercase mr-3">Email:</span><a href="mailto:doilwellinstitute@gmail.com" class="hover:text-amber-500 transition-colors">doilwellinstitute@gmail.com</a></p>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-display font-700 uppercase tracking-widest text-sm mb-6 text-body-main">About Us</h4>
+          <ul class="space-y-3">
+            <li><a href="homepage.html#about" class="font-body text-body-muted hover:text-amber-500 transition-colors">Who we are</a></li>
+            <li><a href="cert.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Our Accreditations</a></li>
+            <li><a href="contact.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Get in Touch with us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-display font-700 uppercase tracking-widest text-sm mb-6 text-body-main">Quick Links</h4>
+          <ul class="space-y-3">
+            <li><a href="courses.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Courses</a></li>
+            <li><a href="cert.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Certifications</a></li>
+            <li><a href="contact.html" class="font-body text-body-muted hover:text-amber-500 transition-colors">Fill a form</a></li>
+            <li><a href="homepage.html#about" class="font-body text-body-muted hover:text-amber-500 transition-colors">Office Address</a></li>
+            <li><a href="mailto:info@doilwellinstitute.com" class="font-body text-body-muted hover:text-amber-500 transition-colors">Email</a></li>
+            <li><a href="tel:+2347026364463" class="font-body text-body-muted hover:text-amber-500 transition-colors">Telephone Number</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="font-display font-400 text-sm tracking-wide text-subtext">&copy; 2025 Doilwell Institute. All rights reserved.</p>
+        <ul class="flex gap-8">
+          <li><a href="homepage.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Home</a></li>
+          <li><a href="cert.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Certificates</a></li>
+          <li><a href="contact.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Contact</a></li>
+          <li><a href="courses.html" class="font-display font-600 text-xs tracking-widest uppercase hover:text-amber-500 transition-colors text-subtext">Courses</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating buttons -->
+  <a href="https://api.whatsapp.com/send?phone=+2347026364463&text=Hello,Chat%20With%20Doilwell" class="float-wa" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <div class="float-phone" onclick="window.location.href='tel:+2347026364463'" role="button" aria-label="Call us" tabindex="0">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+  </div>
+  <div class="float-email" onclick="window.location.href='mailto:info@doilwellinstitute.com'" role="button" aria-label="Email us" tabindex="0">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+  </div>
+
+  <script>
+    function app() {
+      return {
+        menuOpen: false,
+        darkMode: false,
+        counts: { students: 0, courses: 0, certs: 0, years: 0 },
+
+        init() {
+          // Restore saved theme
+          const saved = localStorage.getItem('doilwell-theme');
+          if (saved === 'dark') {
+            this.darkMode = true;
+            document.documentElement.classList.add('dark');
+          }
+          this.$nextTick(() => {
+            this.initScrollReveal();
+            this.initCounters();
+          });
+        },
+
+        toggleDark() {
+          this.darkMode = !this.darkMode;
+          if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('doilwell-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('doilwell-theme', 'light');
+          }
+        },
+
+        initScrollReveal() {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+              if (e.isIntersecting) {
+                const delay = parseInt(e.target.dataset.delay || 0);
+                setTimeout(() => {
+                  e.target.classList.add('revealed');
+                  e.target.classList.add('revealed-x');
+                }, delay);
+              }
+            });
+          }, { threshold: 0.1 });
+          document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+        },
+
+        initCounters() {
+          const targets = { students: 100, courses: 15, certs: 6, years: 10 };
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+              if (e.isIntersecting) {
+                Object.keys(targets).forEach(key => {
+                  let start = 0;
+                  const end = targets[key];
+                  const duration = 1800;
+                  const step = end / (duration / 25);
+                  const timer = setInterval(() => {
+                    start += step;
+                    if (start >= end) { this.counts[key] = end; clearInterval(timer); }
+                    else { this.counts[key] = Math.floor(start); }
+                  }, 25);
+                });
+                observer.disconnect();
+              }
+            });
+          }, { threshold: 0.3 });
+          const statsSection = document.querySelector('.stats-bar');
+          if (statsSection) observer.observe(statsSection);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

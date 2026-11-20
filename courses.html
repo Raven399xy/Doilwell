@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Doilwell Institute — Center For Applied Engineering and Technology — Training Courses</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="doilwell-courses.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
@@ -1032,13 +1033,13 @@
                 <span class="course-accordion-name">Advanced Turbomachinery Analysis &amp; Data Acquisition</span>
                 <svg class="course-chevron w-5 h-5" :style="openCourse === 'turbomachinery' ? 'transform:rotate(180deg)' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
-              <a href="payment.html?course=turbomachinery" class="course-price-tag price-link" aria-label="Price on request for Advanced Turbomachinery Analysis &amp; Data Acquisition">Price on request</a>
+              <a href="payment.html?course=turbomachinery" class="course-price-tag price-link" aria-label="Pay $410 for Advanced Turbomachinery Analysis &amp; Data Acquisition">$410</a>
             </div>
             <div class="course-accordion-body" x-show="openCourse === 'turbomachinery'" x-transition>
               <div class="course-accordion-inner">
                 <div class="course-img-wrap"><img src="https://res.cloudinary.com/dhaufyadl/image/upload/v1794167188/IMG-20261108-WA0010_pvuria.jpg" alt="Advanced Turbomachinery Analysis &amp; Data Acquisition" loading="lazy" /><div class="course-img-overlay"></div></div>
                 <div class="course-content-wrap">
-                  <a href="payment.html?course=turbomachinery" class="course-price-pill" style="text-decoration:none">Price on request <span>Enquire</span></a>
+                  <a href="payment.html?course=turbomachinery" class="course-price-pill" style="text-decoration:none">$410 <span>Enrol &amp; Pay</span></a>
                   <p class="course-description">12 Advanced Professional Modules – Industry-Focused and Hands-On Practical Training</p>
                   <div class="course-meta"><span class="course-tag">12 Modules</span></div>
                   
@@ -1054,7 +1055,7 @@
                       <template x-if="lesson.src"><video controls controlsList="nodownload" :src="lesson.src"></video></template>
                       <template x-if="!lesson.src"><div class="vid-lock"><p class="vid-t" x-text="lesson.t"></p><p class="vid-s">The video for this lesson will appear here once uploaded.</p></div></template>
                     </div></template>
-                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="contact.html" class="btn-primary" style="margin-top:14px">Enquire to unlock</a></div></template>
+                    <template x-if="!unlocked"><div class="vid-lock"><svg class="w-12 h-12 text-amber-500 block mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><p class="vid-t">Course videos are locked</p><p class="vid-s" x-text="c.lessons.length ? c.lessons.length + ' video lessons unlock instantly after payment' : 'Videos unlock instantly after payment'"></p><a href="payment.html?course=turbomachinery" class="btn-primary" style="margin-top:14px">Unlock for $410</a></div></template>
                   </div>
                   <ol class="vid-list">
                     <li x-show="c.lessons.length === 0" class="vid-empty">Video lessons will be listed here once the course outline is added.</li>

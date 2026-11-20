@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Doilwell Institute — Center For Applied Engineering and Technology — Oil & Gas Technical Training</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
@@ -378,7 +379,19 @@
       background: rgba(245,240,232,0.95); border: 1px solid rgba(245,158,11,0.25);
     }
     .dark .floating-badge { background: rgba(10,10,8,0.9); }
+    /* performance: keep the hero cheap on phones and for reduced-motion users */
+    .hero-grain{display:none}
+    .hero-bg{will-change:transform}
+    @media (max-width:1023px){
+      .hero-bg{animation:none;transform:none;will-change:auto}
+      .hero-beams{display:none}
+      .nav-glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(245,240,232,.98)}
+      .dark .nav-glass{background:rgba(10,10,8,.98)}
+      .mobile-menu{backdrop-filter:none;-webkit-backdrop-filter:none}
+    }
+    @media (prefers-reduced-motion:reduce){.hero-bg,.scroll-cue{animation:none}}
   </style>
+  <link rel="preload" as="image" href="homepage.jpeg" fetchpriority="high" />
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script defer src="doilwell-auth.js"></script>
 </head>
@@ -458,10 +471,9 @@
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
-    <div class="hero-grain"></div>
 
     <!-- Animated light beams -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none" style="z-index:1">
+    <div class="hero-beams absolute inset-0 overflow-hidden pointer-events-none" style="z-index:1">
       <div style="position:absolute;top:-20%;left:10%;width:1px;height:140%;background:linear-gradient(180deg,transparent,rgba(245,158,11,0.08),transparent);transform:rotate(15deg);animation:beamMove 8s ease-in-out infinite alternate;"></div>
       <div style="position:absolute;top:-20%;left:30%;width:1px;height:140%;background:linear-gradient(180deg,transparent,rgba(245,158,11,0.05),transparent);transform:rotate(10deg);animation:beamMove 12s ease-in-out infinite alternate-reverse;"></div>
     </div>
@@ -477,7 +489,7 @@
       </p>
       <div class="flex flex-wrap gap-4 anim-fade-up" style="animation-delay:0.55s;animation-fill-mode:both">
         <a href="courses.html" class="btn-primary">Find Training</a>
-        <a href="cert.html" class="btn-outline" style="color:#e8e4d8;border-color:rgba(232,228,216,0.35)">View Certificates</a>
+        <a href="cert.html" class="btn-outline" style="color:#e8e4d8;border-color:rgba(232,228,216,0.35)">Verify Certificates</a>
       </div>
       <p class="mt-8 text-xs font-display font-600 tracking-widest text-stone-400 uppercase anim-fade-up" style="animation-delay:0.7s;animation-fill-mode:both">Industry Driven. Industry Approved.</p>
     </div>
@@ -520,7 +532,7 @@
         <!-- Courses card -->
         <a href="courses.html" class="card-surface group block">
           <div class="card-img-wrap">
-            <img src="indprof.jpg" alt="Oil Courses" loading="lazy" />
+            <img src="indprof.jpg" alt="Oil Courses" loading="lazy" decoding="async" />
             <div class="card-overlay"></div>
             <div class="absolute bottom-0 left-0 p-6">
               <span class="section-eyebrow block mb-2">Training Programs</span>
@@ -535,7 +547,7 @@
         <!-- Certs card -->
         <a href="cert.html" class="card-surface group block">
           <div class="card-img-wrap">
-            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=900&q=85" alt="Certifications" loading="lazy" />
+            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=900&q=85" alt="Certifications" loading="lazy" decoding="async" />
             <div class="card-overlay"></div>
             <div class="absolute bottom-0 left-0 p-6">
               <span class="section-eyebrow block mb-2">Accreditations</span>
@@ -568,7 +580,7 @@
         </div>
         <div class="reveal-right relative">
           <div class="about-img">
-            <img src="tech.jpg" alt="Oil Training" class="w-full h-[520px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" />
+            <img src="tech.jpg" alt="Oil Training" class="w-full h-[520px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" decoding="async" />
             <div class="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-amber-900/10"></div>
           </div>
           <div class="absolute -bottom-6 -right-6 w-40 h-40 border-2 border-amber-400/30 pointer-events-none"></div>
@@ -588,7 +600,7 @@
     <div class="max-w-7xl mx-auto">
       <div class="grid md:grid-cols-2 gap-16 items-center">
         <div class="reveal relative order-2 md:order-1">
-          <img src="prov.png" alt="About Doilwell Institute" class="w-full h-[480px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" />
+          <img src="prov.png" alt="About Doilwell Institute" class="w-full h-[480px] object-cover" style="filter:saturate(0.75) contrast(1.08)" loading="lazy" decoding="async" />
           <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/30"></div>
           <!-- Floating stat -->
           <div class="absolute bottom-8 right-8 floating-badge p-6 backdrop-blur-sm">
@@ -674,7 +686,7 @@
 
   <!-- ═══════════════════════════════════ CTA BAND ═══════════════════════════════════ -->
   <section class="relative py-24 px-6 overflow-hidden">
-    <img src="career.jpg" class="absolute inset-0 w-full h-full object-cover" style="filter:saturate(0.3) brightness(0.28)" alt="" loading="lazy" />
+    <img src="career.jpg" class="absolute inset-0 w-full h-full object-cover" style="filter:saturate(0.3) brightness(0.28)" alt="" loading="lazy" decoding="async" />
     <div class="absolute inset-0" style="background:rgba(194,65,12,0.07)"></div>
     <div class="relative z-10 max-w-4xl mx-auto text-center">
       <h2 class="font-display font-900 text-5xl md:text-7xl text-white uppercase leading-none mb-6 reveal">Ready to <span class="text-amber-400">Advance</span> Your Career?</h2>
@@ -793,26 +805,20 @@
 
         initCounters() {
           const targets = { students: 100, courses: 15, certs: 6, years: 10 };
+          const el = document.querySelector('.stats-bar');
+          if (!el) return;
           const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-              if (e.isIntersecting) {
-                Object.keys(targets).forEach(key => {
-                  let start = 0;
-                  const end = targets[key];
-                  const duration = 1800;
-                  const step = end / (duration / 25);
-                  const timer = setInterval(() => {
-                    start += step;
-                    if (start >= end) { this.counts[key] = end; clearInterval(timer); }
-                    else { this.counts[key] = Math.floor(start); }
-                  }, 25);
-                });
-                observer.disconnect();
-              }
-            });
+            if (!entries.some(e => e.isIntersecting)) return;
+            observer.disconnect();
+            const t0 = performance.now(), dur = 1800;
+            const tick = now => {
+              const p = Math.min((now - t0) / dur, 1);
+              Object.keys(targets).forEach(k => { this.counts[k] = Math.round(targets[k] * p); });
+              if (p < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
           }, { threshold: 0.3 });
-          const statsSection = document.querySelector('.stats-bar');
-          if (statsSection) observer.observe(statsSection);
+          observer.observe(el);
         }
       }
     }

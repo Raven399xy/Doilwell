@@ -499,7 +499,7 @@ window.DOILWELL = {
  },
  "turbomachinery": {
   "title": "Advanced Turbomachinery Analysis & Data Acquisition",
-  "price": null,
+  "price": 410,
   "category": "Rotating Equipment & Mechanical Integrity",
   "img": "https://res.cloudinary.com/dhaufyadl/image/upload/v1794167188/IMG-20261108-WA0010_pvuria.jpg",
   "desc": "12 Advanced Professional Modules \u2013 Industry-Focused and Hands-On Practical Training",
